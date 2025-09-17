@@ -1,0 +1,71 @@
+/* ========================================
+   按钮相关样式模块 (Buttons Styles)
+   ========================================
+   功能：处理各种按钮的显示样式和交互效果
+   包含：侧边栏按钮、顶部栏按钮、搜索按钮等
+   ======================================== */
+
+/* 亮色模式按钮样式 */
+@media (prefers-color-scheme: light) {
+    /* 侧边栏按钮样式 */
+    #sidebar .orca-button.plain:not(:disabled):active {
+        background-color: hsl(0deg 0% 0% / 0%);
+        opacity: 0.7;
+    }
+
+    /* 侧边栏底部新页面按钮 */
+    .orca-sidebar-create-aliased-btn.orca-button {
+        background-color: hsl(0deg 0% 0% / 0%);
+        border-top: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #808080;
+        border-radius: 0px; 
+    }
+
+    /* 左侧搜索栏 */
+    span.orca-input-input {
+        border-top: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #808080;
+        border-radius: 0px; 
+    }
+
+    /* 仓库切换按钮 */
+    button.orca-button.plain.orca-select-button.orca-repo-switcher-button {
+        border-top: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #808080;
+        border-radius: 0px; 
+    }
+
+    /* 左侧按钮按钮 */
+    button.orca-button.plain.orca-headbar-sidebar-toggle {
+        border-top: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #808080;
+        border-radius: 0px;
+    }
+
+    /* 左侧按钮组 */
+    .orca-headbar-sidebar-tools {
+        border-top: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #808080;
+        border-radius: 0px;
+    }
+}
+
+
+
+/* 暗色模式按钮样式 */
+@media (prefers-color-scheme: dark) {
+    /* 左侧按钮颜色 */
+    .orca-headbar-sidebar-tools .orca-button {
+        color: hsl(0, 0%, 100%);
+    }
+}

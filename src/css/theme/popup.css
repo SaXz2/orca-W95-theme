@@ -1,0 +1,57 @@
+/* ========================================
+   弹窗相关样式模块 (Popup Styles)
+   ========================================
+   功能：处理弹窗的显示样式和交互效果
+   包含：链接悬浮弹窗、编辑器切换动画、侧工具按钮等
+   ======================================== */
+
+/* 链接悬浮弹窗紧贴链接文本 */
+.orca-popup:has(.orca-inline-link-popup) {
+    translate: 0 -3.5px;
+}
+
+/* 编辑器切换时增加过渡动画 */
+@keyframes tovisible {
+    from {
+        opacity: 0;
+        scale: 0.97;
+    }
+    to {
+        opacity: 1;
+        scale: 1;
+    }
+}
+
+@scope(#main) to (.orca-popup) {
+    .orca-hideable:not(.orca-hideable-hidden)>.orca-block-editor>.orca-block-editor-main {
+        transform-origin: top left;
+        animation: tovisible .1s linear forwards;
+    }
+
+    /* 面板左侧的折叠按钮非active非hover时变为小圆点 */
+    /* 虎鲸的非active透明逻辑是直接给按钮压低透明  这样的方式不适合背景色和color过渡切换，正确方式是背景色和color透明 */
+    .orca-panel:not(.active) .orca-block-editor-sidetools-btn.orca-button {
+        opacity: unset;
+    }
+
+    .orca-panel:not(.active) .orca-block-editor-sidetools-btn>i {
+        color: hsl(from var(--orca-color-text-1) h s l / .2);
+    }
+
+    .orca-panel:not(.active) .orca-block-editor-sidetools:not(:hover)>.orca-button>i {
+        color: hsl(from var(--orca-color-text-1) h s l / 0);
+        background-color: hsl(from var(--orca-color-text-1) h s l / .2);
+    }
+
+    /* 分屏分割线淡化 */
+    .orca-panels-row>:is(.orca-panels-column, .orca-panel):not(:last-child),
+    .orca-panels-column>:is(.orca-panels-row, .orca-panel):not(:last-child) {
+        border-width: .5px;
+    }
+}
+
+/* 分屏分割线淡化 - 全局样式 */
+.orca-panels-row>:is(.orca-panels-column, .orca-panel):not(:last-child),
+.orca-panels-column>:is(.orca-panels-row, .orca-panel):not(:last-child) {
+    border-width: .5px;
+}

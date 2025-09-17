@@ -1,0 +1,68 @@
+/* W95 主题基础样式（公共、布局、通用变量等） */
+
+/* ========================================
+   公共背景样式类 (Common Background Styles)
+   ======================================== */
+
+/* 应用背景小圆点样式 - 正常显示 */
+.w95-app-background {
+    background-image: 
+        radial-gradient(circle, rgba(71, 71, 71, 0.11) 1px, transparent 1px);
+    background-size: 25px 25px;
+}
+
+/* 应用背景小圆点样式 - 导出时隐藏 */
+.w95-app-background-export {
+    background-image: 
+        radial-gradient(circle, rgba(71, 71, 71, 0) 1px, transparent 1px);
+    background-size: 25px 25px;
+}
+
+/* 面板容器透明背景 */
+.w95-panels-transparent {
+    background-color: transparent !important;
+}
+
+/* ========================================
+   公共块样式类 (Common Block Styles)
+   ======================================== */
+
+/* 块预览通用样式 */
+.orca-block-preview {
+    max-width: unset !important;
+}
+
+.orca-block-preview-interactive {
+    box-shadow: none; 
+}
+
+/* 复选框样式 */
+.w95-checkbox-completed {
+    opacity: 0.6;  /* 复选框透明度 */
+    text-decoration: line-through;  /* 添加复选框删除线 */
+}
+
+/* 无阴影样式 */
+.w95-no-shadow {
+    box-shadow: none;
+}
+
+/* 编辑器占位符高度 */
+.orca-block-editor-placeholder { 
+    height: 250px; 
+}
+
+
+/* 最近文档列表关闭按钮交互 */
+.orca-recents-menu-item>.orca-recents-menu-close {
+    order: -1;
+    padding: .125rem;
+    margin-right: .25rem;
+    margin-left: -.25rem;
+    transition-duration: .1s;
+}
+.orca-recents-menu-item:not(:hover)>.orca-recents-menu-close { opacity: 0.1; }
+.orca-recents-menu-item:hover>.orca-recents-menu-close:not(:hover) { opacity: .3; }
+
+
+

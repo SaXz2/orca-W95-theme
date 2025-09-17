@@ -1,0 +1,62 @@
+/* ========================================
+   Orca W95 主题主文件 (Main Theme File)
+   ========================================
+   功能：导入所有主题模块，提供完整的W95风格主题
+   包含：所有功能模块的样式导入
+   ======================================== */
+
+/* 基础样式模块 */
+@import "./theme/base.css";
+@import "./theme/scope.css";
+@import "./theme/mirror.css";
+@import "./theme/query.css";
+@import "./theme/export.css";
+@import "./theme/longform.css";
+@import "./theme/headings.css";
+@import "./theme/tags.css";
+@import "./theme/quotes.css";
+@import "./theme/links.css";
+@import "./theme/images.css";
+@import "./theme/toolbar.css";
+@import "./theme/menu.css";
+@import "./theme/buttons.css";
+@import "./theme/toc.css";
+@import "./theme/calendar.css";
+@import "./theme/popup.css";
+@import "./theme/cards.css";
+@import "./theme/inline.css";
+@import "./theme/sidebar.css";
+@import "./theme/headbar.css";
+@import "./theme/editor.css";
+@import "./theme/light.css";
+@import "./theme/dark.css";
+@import "./theme/blocks.css";
+
+/* ========================================
+   已迁移到各个模块的样式说明：
+   ========================================
+   - 缩进线相关样式 -> scope.css
+   - 镜像块相关样式 -> mirror.css
+   - 查询相关样式 -> query.css
+   - 导出相关样式 -> export.css
+   - 长文模式样式 -> longform.css
+   - 标题相关样式 -> headings.css
+   - 标签相关样式 -> tags.css
+   - 引述相关样式 -> quotes.css
+   - 链接相关样式 -> links.css
+   - 图片相关样式 -> images.css
+   - 工具栏相关样式 -> toolbar.css
+   - 菜单相关样式 -> menu.css
+   - 按钮相关样式 -> buttons.css
+   - 目录相关样式 -> toc.css
+   - 日历相关样式 -> calendar.css
+   - 弹窗相关样式 -> popup.css
+   - 卡片相关样式 -> cards.css
+   - 内联元素相关样式 -> inline.css
+   - 侧边栏相关样式 -> sidebar.css
+   - 顶部栏相关样式 -> headbar.css
+   - 编辑器相关样式 -> editor.css
+   - 亮色模式样式 -> light.css
+   - 暗色模式样式 -> dark.css
+   - 块相关样式 -> blocks.css
+   ======================================== */

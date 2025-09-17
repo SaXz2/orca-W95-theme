@@ -1,0 +1,37 @@
+/* 查询列表块序号与相关样式 */
+
+.orca-query-list {
+    counter-reset: block-counter;
+    position: relative;
+}
+
+.orca-query-list-block {
+    counter-increment: block-counter;
+    position: relative;
+}
+
+.orca-query-list-block::after {
+    content: counter(block-counter);
+    position: absolute;
+    left: calc(100% - 40px);
+    top: calc(100% - 19px);
+    color: #666;
+    font-size: 12px;
+    font-weight: 500;
+    padding-left: 8px;
+    line-height: inherit;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.orca-query-list-block:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+.creation-time-wrapper {
+    margin-right: 24px;
+}
+
+

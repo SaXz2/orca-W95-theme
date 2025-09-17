@@ -1,0 +1,60 @@
+/* ========================================
+   图片相关样式模块 (Images Styles)
+   ========================================
+   功能：处理图片的显示样式和交互效果
+   包含：图片包装器、图片悬停效果、图片模态框等
+   ======================================== */
+
+/* 亮色模式图片样式 */
+@media (prefers-color-scheme: light) {
+    /* 图片包装器样式 */
+    .orca-image-wrapper {
+        /* 图片最大宽度 */
+        max-width: 98%;
+    }
+
+    /* 图片去模糊去背景 */
+    .orca-modal-overlay-blurred {
+        backdrop-filter: blur(0.5px);
+        background: #0000001c;
+    }
+
+    .orca-image-wrapper {
+        border-radius: 8px;
+    }
+    
+    .orca-image-wrapper {
+        border-radius: 5px;
+        margin: 4px 4px 4px 4px;
+        box-shadow: 2px 2px 5px -2px rgb(0 0 0 / 70%), -1px -1px 3px -1px rgb(0 0 0 / 40%);
+        background: #8888881c;
+    }
+}
+
+/* 暗色模式图片样式 */
+@media (prefers-color-scheme: dark) {
+    /* 移动鼠标图片变亮效果 */
+    img.orca-image.orca-image-image {
+        filter: brightness(55%);
+        transition: filter 0.8s ease;
+    }
+    
+    img.orca-image.orca-image-image:hover {
+        filter: brightness(100%);
+        transition: filter 0.3s ease;
+    }
+    
+    /* 图片阴影效果 */
+    .orca-image-wrapper {
+        border-radius: 5px;
+        margin: 4px 4px 4px 4px;
+        box-shadow: 2px 2px 5px -2px rgb(0 0 0 / 70%), -1px -1px 3px -1px rgb(0 0 0 / 40%);
+        background: #8888881c;
+    }
+    
+    /* 图片去模糊去背景 */
+    .orca-modal-overlay-blurred {
+        backdrop-filter: blur(0.5px);
+        background: #0000001c;
+    }
+}

@@ -1,0 +1,101 @@
+/* ========================================
+   内联元素相关样式模块 (Inline Styles)
+   ========================================
+   功能：处理内联元素的显示样式和交互效果
+   包含：下划线、粗体、块引用、复选框等
+   ======================================== */
+
+/* 下划线微调 增加一定间距 */
+    .orca-inline.u {
+        text-underline-offset: 2px;
+    }
+
+/* 块引用边框样式已移至 base.css 中的公共样式类 */
+
+/* 隐藏分割线样式 */
+    i.orca-block-handle.ti.ti-separator {
+        opacity: 0;
+    }
+
+/* 引述类型选择器样式 */
+    .orca-repr-quote2-info .orca-repr-quote2-type-selector {
+        color: #fdeee4 !important;
+        top: 0px;
+        position: relative;
+    }
+
+/* 调整段落间距 */
+    .orca-repr-main:after {
+        height: .2em;
+        margin-bottom: .15em;
+    }
+
+/* 去除右侧点 */
+    i.ti.ti-dots-vertical.orca-inline-r-dots {
+        display: none;
+    }
+
+/* 字体大小调整 */
+    .orca-repr-title {
+        font-weight: 600;
+    }
+
+/* 编辑器空行 去除编辑提示或修改提示 */
+    .orca-block.orca-active > .orca-repr > .orca-repr-main > .orca-repr-text-content:empty::after {
+        opacity: 0;
+    }
+
+/* 任务块样式 */
+/* task块的勾选框尺寸同步内容字体大小 */
+    .orca-repr-task-content:before {
+        font-size: 1.25em;
+        /* 消除基线对齐产生的偏离 */
+        translate: 0 .125em;
+    }
+
+/* 复选框样式 - 使用公共样式类 */
+    .orca-repr-task-1 .orca-inline {
+        /* 样式已移至 base.css 中的 .w95-checkbox-completed 类 */
+        opacity: 0.6;  /* 复选框透明度 */
+        text-decoration: line-through;  /* 添加复选框删除线 */
+    }
+
+/* 暗色模式复选框样式 - 与亮色模式相同，无需重复定义 */
+
+/* 粗体颜色 */
+    span.orca-inline-r-content {
+        border-bottom: none;
+        font-weight: 700;
+    }
+
+@media (prefers-color-scheme: dark) {
+    span.orca-inline.b {
+        color: #FFF5E0;
+        font-weight: bolder;
+    }
+    
+    span.orca-inline-r-content {
+        font-weight: 800;
+        color: #eb4949;
+    }
+}
+
+/* 暗色模式下 有序列表数字颜色 */
+@media (prefers-color-scheme: dark) {
+    .orca-repr-ol-content:before {
+        color: chartreuse;
+    }
+    /* 块引用计数标记 */
+    .orca-block-ref-count-marker.orca-button {
+        background-color: #1e2127;
+    }
+}
+
+
+
+/* 非编辑块折叠样式 */
+.orca-repr-self-fold-container {
+    background: #1c1e25;
+    border-radius: 16px;
+    border-bottom: 3px solid #0b0d10;
+}

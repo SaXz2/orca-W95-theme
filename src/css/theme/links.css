@@ -1,0 +1,38 @@
+/* ========================================
+   链接相关样式模块 (Links Styles)
+   ========================================
+   功能：处理链接的显示样式和交互效果
+   包含：网络链接、内部链接、链接图标等
+   ======================================== */
+
+/* 亮色模式链接样式 */
+@media (prefers-color-scheme: light) {
+    /* 网络链接样式 */
+    .orca-inline-l-text {
+        color: #396e99;
+        font-weight: 400;
+        border-bottom: 1px dashed #396e99;
+        font-size: 15px;
+    }
+    
+    i.ti.ti-world.orca-inline-l-icon {
+        /* 链接图标大小 */
+        font-size: 14px;
+    }
+}
+
+/* 暗色模式链接样式 */
+@media (prefers-color-scheme: dark) {
+    /* 网络链接样式 */
+    .orca-inline-l-text {
+        color: #88c6f9;
+        font-weight: 400;
+        border-bottom: 1px dashed #396e99;
+        font-size: 15px;
+    }
+    
+    i.ti.ti-world.orca-inline-l-icon {
+        /* 链接图标大小 */
+        font-size: 14px;
+    }
+}

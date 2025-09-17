@@ -1,0 +1,82 @@
+/* ========================================
+   卡片相关样式模块 (Cards Styles)
+   ========================================
+   功能：处理卡片的显示样式和交互效果
+   包含：查询卡片、块预览、卡片标题等
+   ======================================== */
+
+
+
+
+/* 通用卡片样式 */
+    .orca-query-card-cover {
+        aspect-ratio: auto;
+        width: 100%;
+    }
+
+/* 块预览相关样式 */
+    .orca-block-preview {
+        /* 块预览大小 */
+        width: 650px;
+        max-width: 45cqw;
+        height: 45cqh;
+    }
+
+/* 调整块预览高度 */
+    .orca-block-preview .orca-block-editor-cover {
+        height: 9vh;
+    }
+
+/* 隐藏块预览提示 */
+    .orca-block-preview-hint {
+        display: none;
+    }
+
+
+/* 亮色模式卡片样式 */
+@media (prefers-color-scheme: light) {
+    /* 卡片视图 */
+    .orca-query-card {
+        background-color: #EFEFEF;
+        border-top: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #808080;
+        border-radius: 0px;
+    }
+
+    .orca-query-card-title .orca-tags {
+        transform: translateY(-1px);
+        align-items: start !important;
+    }
+
+    .orca-block-preview {
+    /* 亮色模式下 块预览背景 */
+        background: #ffffff;
+    }
+}
+
+
+
+/* 暗色模式卡片样式 */
+@media (prefers-color-scheme: dark) {
+    .orca-query-card {
+        /* 查询卡片样式调整 */
+        border: none;
+        border-radius: 16px;
+        box-shadow: none;
+        padding-bottom: var(--orca-spacing-sm);
+        background-color: hsl(205.01deg 34.48% 7.72%);
+        overflow: clip;
+    }
+
+    .orca-block-preview {
+    /* 暗色模式下 块预览背景 */
+    background: #1E2127;
+    }
+    
+    .orca-query-card-title {
+        /* 查询卡片标题样式调整 */
+        background-color: hsl(0deg 0% 0%);
+    }
+}

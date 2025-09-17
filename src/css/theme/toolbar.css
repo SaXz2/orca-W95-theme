@@ -1,0 +1,33 @@
+/* ========================================
+   工具栏相关样式模块 (Toolbar Styles)
+   ========================================
+   功能：处理编辑器工具栏的显示样式和交互效果
+   包含：工具栏按钮、工具栏列表、工具栏布局等
+   ======================================== */
+
+/* 亮色模式工具栏样式 */
+@media (prefers-color-scheme: light) {
+    /* 工具栏主体样式 */
+    .orca-editor-toolbar-bar {
+        border-radius: 0px;
+        padding-top: 0; 
+        padding-left: 0; 
+    }
+    
+    /* 工具栏按钮样式 */
+    .orca-editor-toolbar-button {
+        border-radius: 0px;
+        border-top: 1px solid rgb(255, 255, 255);
+        border-left: 1px solid rgb(255, 255, 255);
+        border-right: 1px solid rgb(128, 128, 128);
+        border-bottom: 1px solid rgb(128, 128, 128);
+    }
+
+    /* 工具栏列表样式 */
+    .orca-editor-toolbar-list {
+        border-radius: 0px;
+        padding-left: 2px;
+        left: -2px;
+        right: 0px;
+    }
+}

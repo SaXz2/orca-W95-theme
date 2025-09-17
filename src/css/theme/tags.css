@@ -1,0 +1,97 @@
+/* ========================================
+   标签相关样式模块 (Tags Styles)
+   ========================================
+   功能：处理标签的显示样式和交互效果
+   包含：标签样式、标签颜色、标签交互等
+   ======================================== */
+
+/* 亮色模式标签样式 */
+@media (prefers-color-scheme: light) {
+    /* 标签样式 */
+    span.orca-tag-handle {
+        /* 去除右侧三个点 */
+        display: none;
+    }
+
+    span.orca-tag-tag {
+        /* 样式调整 */
+        font-weight: 600;
+        padding-left: 5px;
+        padding-right: 5px;
+        border: 0;
+        font-size: 10px !important;
+        border-radius: 0;
+        background: #ffffff;
+        border-top: 1px solid #d5d5d5;
+        border-left: 1px solid #d5d5d5;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #808080;
+    }
+
+    .orca-tags {
+        transform: translateY(-4px);
+        align-items: start !important;
+    }
+        
+    i.orca-tag-data-icon.ti.ti-caret-right-filled {
+        padding-left: 0px;
+    }
+}
+
+/* 暗色模式标签样式 */
+@media (prefers-color-scheme: dark) {
+    /* 标签样式 */
+    span.orca-tag-handle {
+        /* 去除右侧三个点 */
+        display: none;
+    }
+
+    .orca-tags {
+        transform: translateY(-3px);
+        padding-top: -5px;
+        align-items: start !important;
+        font-size: 12px;
+    }
+    
+    i.orca-tag-data-icon.ti.ti-caret-right-filled {
+        padding-left: 0px;
+        line-height: 1;
+    }
+
+    span.orca-tag-tag {
+        font-weight: 600;
+    }
+
+    .orca-tag-tag {
+        padding-left: 6px;
+        background-color: var(--orca-color-tag);
+        border-radius: 8px;
+        border: 0; 
+        border-right: 0; 
+        cursor: pointer; 
+        display: inline-flex;
+        align-items: center;
+        padding-right: 8px;
+    }
+    
+    .orca-tag-handle {
+        background-color: var(--orca-color-tag);
+        border-radius: 0 var(--orca-radius-md) var(--orca-radius-md) 0;
+        border-top: 0; 
+        border-bottom: 0; 
+        border-right: 0; 
+        padding-right: 0; 
+        cursor: pointer;
+    }
+    
+    /* 标签颜色 */
+    span.orca-tags {
+        transition: all 0.8s ease;
+        color: #9ccbc4a2; 
+    }
+    
+    span.orca-tags:hover {
+        transition: all 0.8s ease;
+        color: #9ccbc4; 
+    }
+}

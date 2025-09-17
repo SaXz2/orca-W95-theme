@@ -1,0 +1,63 @@
+/* ========================================
+   顶部栏相关样式模块 (Headbar Styles)
+   ========================================
+   功能：处理顶部栏的显示样式和交互效果
+   包含：顶部栏背景、全局工具按钮、侧边栏工具等
+   ======================================== */
+
+/* 顶部栏右侧按钮收纳进设置圆点 */
+#headbar {
+    .orca-headbar-global-tools {
+        /* 拉开和user-tools的距离，减少误触 */
+        margin-left: 1rem;
+        gap: 0;
+        
+        &>button:not(:last-child) {
+            margin-right: var(--orca-spacing-sm);
+        }
+    }
+
+    .orca-headbar-global-tools:not(:hover)>button:not(:last-child) {
+        margin-right: calc(-2 * var(--orca-spacing-sm) + -1 * var(--orca-fontsize-lg));
+        transform-origin: center;
+        opacity: 0;
+        scale: 0.1;
+    }
+
+    .orca-headbar-global-tools>button {
+        transition:
+            margin-right .1s ease-out,
+            opacity .1s ease-out,
+            scale .1s ease-out;
+        transition-delay: .1s;
+    }
+
+    .orca-headbar-global-tools:hover>button {
+        transition-delay: 0s;
+    }
+
+    .orca-headbar-global-tools>button:not(:hover) {
+        opacity: .5;
+    }
+}
+
+/* 亮色模式顶部栏样式 */
+@media (prefers-color-scheme: light) {
+    /* 顶部栏背景 */
+    header#headbar {
+        background: #e1e1e1;
+    }
+
+    /* 左侧按钮颜色 */
+    .orca-headbar-sidebar-tools .orca-button {
+        color: hsl(0, 0%, 0%);
+    }
+}
+
+/* 暗色模式顶部栏样式 */
+@media (prefers-color-scheme: dark) {
+    /* 左侧按钮颜色 */
+    .orca-headbar-sidebar-tools .orca-button {
+        color: hsl(0, 0%, 100%);
+    }
+}

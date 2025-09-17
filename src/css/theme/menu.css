@@ -1,0 +1,94 @@
+/* ========================================
+   菜单相关样式模块 (Menu Styles)
+   ========================================
+   功能：处理各种菜单的显示样式和交互效果
+   包含：上下文菜单、块句柄菜单、输入框菜单、最近文件菜单等
+   ======================================== */
+
+
+
+/* 亮色模式菜单样式 */
+@media (prefers-color-scheme: light) {
+    /* 块句柄菜单样式 */
+    .orca-menu.orca-context-menu.orca-block-handle-menu {
+        background: #ffffff;
+    }
+    
+    /* 菜单标题样式 */
+    .orca-menu-title {
+        /* 提醒说明 */
+        border-radius: 0px;
+        border-top: 1px solid rgb(255, 255, 255);
+        border-left: 1px solid rgb(255, 255, 255);
+        border-right: 1px solid rgb(128, 128, 128);
+        border-bottom: 1px solid rgb(128, 128, 128);
+    }
+
+    /* 菜单主体样式 */
+    .orca-menu {
+        border-radius: 0;
+        border-top: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        padding: 0;
+    }
+    
+    /* 菜单文本样式 */
+    .orca-menu-text {
+        border-radius: 0;
+        border-top: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #808080;
+    }
+    
+    /* 别名编辑器菜单样式 */
+    .orca-menu.orca-context-menu.orca-alias-editor {
+        background: rgb(239, 239, 239);
+        border-radius: 0px;
+        border-top: 1px solid rgb(255, 255, 255);
+        border-left: 1px solid rgb(255, 255, 255);
+        border-right: 1px solid rgb(128, 128, 128);
+        border-bottom: 1px solid rgb(128, 128, 128);
+    }
+
+    /* 图片标题输入菜单样式 */
+    .orca-menu.orca-context-menu.orca-input-box.orca-image-caption-input {
+        border-radius: 0px;
+        border-top: 1px solid rgb(255, 255, 255);
+        border-left: 1px solid rgb(255, 255, 255);
+        border-right: 1px solid rgb(128, 128, 128);
+        border-bottom: 1px solid rgb(128, 128, 128);
+    }
+    
+    /* 按钮样式 */
+    .orca-button.solid {
+        background-color: #cbcbcb00;
+        color: hsl(0deg 0% 0%);
+    }
+    
+    /* 输入框聚焦样式 */
+    .orca-input-input:focus-within {
+        outline: var(--orca-color-primary-5) auto 0cqw; 
+    }
+
+    /* 块引属性输入菜单调整 */
+    button.orca-button.outline.orca-select-button.orca-select-button-multi {
+        border-radius: 0px;
+    }
+    
+    span.orca-textarea-input {
+        border-radius: 0px;
+    }
+    
+    label.orca-file-input {
+        border-top: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #808080;
+        border-radius: 0px;
+    }
+    
+    button.orca-button.outline.orca-datepicker-btn {
+        border-radius: 0px;
+    }
+}

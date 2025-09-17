@@ -1,0 +1,31 @@
+/* ========================================
+   导出相关样式模块 (Export Styles)
+   ========================================
+   功能：处理PDF导出、打印等导出功能的样式
+   包含：导出时的布局调整、边框隐藏、背景处理等
+   ======================================== */
+
+/* 导出时的全局样式调整 */
+.orca-exporting :is(#app,#main,.orca-hideable,.orca-block-editor) {
+    overflow: visible !important;
+    height: auto !important;
+    border: 0px ridge #ffffff;
+    box-shadow: none;
+}
+
+/* 导出PDF样式 */
+.orca-exporting {
+    /* 隐藏导出边框线 - 使用公共样式类 */
+    div#app {
+        /* 背景样式已移至 base.css 中的 w95-app-background-export 类 */
+    }
+    
+    .orca-panels-container {
+        /* 背景样式已移至 base.css 中的 w95-panels-transparent 类 */
+    }
+    
+    .orca-block-editor {
+        border: 0px ridge #ffffff;
+        box-shadow: none;
+    }
+}

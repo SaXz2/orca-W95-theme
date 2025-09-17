@@ -1,0 +1,138 @@
+/* ========================================
+   查询相关样式模块 (Query Styles)
+   ========================================
+   功能：处理查询页面、查询列表、查询条件等样式
+   包含：查询列表块、查询按钮、查询条件、查询结果等
+   ======================================== */
+
+
+/* 全局 */
+
+    /* 去背景 */
+    .orca-query-conditions {
+        background-color: hsl(0deg 0% 94% / 0%);
+    }
+
+
+    
+    /* 查询列表计数器 */
+    /* 初始化计数器 */
+    .orca-query-list {
+        counter-reset: block-counter;
+        position: relative;
+    }
+
+    /* 为每个列表块增加计数器 */
+    .orca-query-list-block {
+        counter-increment: block-counter;
+        position: relative;
+    }
+
+    /* 生成序号并默认隐藏，添加完整过渡动画 */
+    .orca-query-list-block::after {
+        content: counter(block-counter);
+        position: absolute;
+        left: calc(100% - 40px);
+        top: calc(100% - 19px);
+        
+        /* 序号样式 */
+        color: #666;
+        font-size: 12px;
+        font-weight: 500;
+        padding-left: 8px;
+        line-height: inherit;
+        
+        /* 默认隐藏序号 */
+        opacity: 0;
+        visibility: hidden;
+        /* 关键修改：同时监听opacity和visibility的变化，实现完整过渡 */
+        transition: opacity 0.2s ease, visibility 0.2s ease;
+    }
+
+    /* 仅当鼠标悬停在当前块上时显示其序号 */
+    .orca-query-list-block:hover::after {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* 确保时间容器有足够空间容纳右侧序号 */
+    .creation-time-wrapper {
+        margin-right: 24px;
+    }
+
+/* light */
+@media (prefers-color-scheme: light) {
+
+    button.orca-button.soft.orca-query-conditions-reset {
+    /* 查询重置按钮 */
+    border-radius: 0px;
+    border-top: 1px solid #ffffff;
+    border-left: 1px solid #ffffff;
+    border-right: 1px solid #808080;
+    border-bottom: 1px solid #808080;
+    }
+    
+    /* 查询按钮样式 */
+    button.orca-button.plain.orca-block-editor-query-add-btn {
+    /* 查询添加按钮 */
+    border-radius: 0px;
+    border-top: 1px solid rgb(255, 255, 255);
+    border-left: 1px solid rgb(255, 255, 255);
+    border-right: 1px solid rgb(128, 128, 128);
+    border-bottom: 1px solid rgb(128, 128, 128);
+    }
+
+    /* 渐隐Tabs效果 */
+    .orca-block-editor-query-tabs-container {
+        opacity: 0.3;
+        transition: opacity 0.5s ease;
+    }
+
+    .orca-block-editor-query-tabs-container:hover {
+        opacity: 1;
+        transition: opacity 0.5s ease;
+    }
+
+    /* 查询列表块样式 */
+    .orca-query-list-block {
+        border-radius: 0;
+        border-top: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #808080;
+    }
+
+    /* 查询结果工具栏样式 */
+    .orca-query-result-list-toolbar {
+        border-radius: 0;
+        border-top: 1px solid #ffffff;
+        border-left: 1px solid #ffffff;
+        border-right: 1px solid #808080;
+        border-bottom: 1px solid #808080;
+        background: #f1f1f1;
+        padding-left: 6px;
+        padding-right: 6px;
+    }
+}
+
+
+
+/* 暗色模式查询样式 */
+@media (prefers-color-scheme: dark) {
+
+    
+    .orca-query-list-block::before {
+        border-radius: 8px;
+        background: #2e323b;
+    }
+
+    /* 查询重置按钮 */
+    button.orca-button.soft.orca-query-conditions-reset {
+        background: #ff000021;
+        transition: background 0.8s ease;
+    }
+    
+    button.orca-button.soft.orca-query-conditions-reset:hover {
+        background: #ff000094;
+    }
+}

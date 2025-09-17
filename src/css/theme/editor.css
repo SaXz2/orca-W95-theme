@@ -1,0 +1,131 @@
+/* ========================================
+   编辑器相关样式模块 (Editor Styles)
+   ========================================
+   功能：处理编辑器的显示样式和交互效果
+   包含：编辑器边框、侧工具、聚焦属性、任务块等
+   ======================================== */
+
+   /* BUG修复 - 隐藏聚焦属性内容为空时的显示 */
+.orca-repr-tag-props:empty {
+    display: none;
+}
+
+/* 通用编辑器样式 */
+
+/* 改变聚焦属性的样式 */
+.orca-repr-tag-props-group {
+    padding: 0 1rem;
+}
+
+.orca-repr-tag-props-title {
+    border-top: none;
+    background-color: #80808013;
+    padding: .25rem .5rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    margin-top: 0;
+}
+
+.orca-repr-tag-props {
+    gap: .375rem;
+}
+
+.orca-repr-tag-props .orca-tag-data-name {
+    margin-right: 2em;
+}
+
+/* 去除聚焦属性横线 */
+.orca-repr-tag-props-title {
+    border-top: 0px solid var(--orca-repr-tag-props-color, var(--orca-color-text-2)); 
+}
+
+/* 面板拖拽手柄 */
+i.orca-panel-drag-handle.ti.ti-dots-vertical {
+    background: #faebd700;
+}
+
+/* 调整编辑器侧栏按钮 */
+.orca-block-editor-query-section-center {
+    border-top: 0px dotted var(--orca-color-border) !important;
+}
+
+/* 侧工具按钮透明度 */
+.ti-grip-vertical:before {
+    opacity: 0.3;
+    transition: opacity 0.8s ease;
+}
+
+.ti-grip-vertical:before:hover {
+    opacity: 0.8;
+    transition: opacity 0.5s ease;
+}
+
+.orca-block-editor-sidetools {
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+
+.orca-block-editor-sidetools:hover {
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+/* 选框圆角 */
+.orca-no-editable-selected:before {
+    background-color: rgba(from var(--orca-color-primary-7) r g b / 0.2);
+    border-radius: 8px; /* 数值越大，圆角越明显 */
+}
+
+
+
+
+
+/* 亮色模式编辑器样式 */
+@media (prefers-color-scheme: light) {
+    /* 聚焦属性显示颜色 */
+    .orca-repr-tag-props {
+        background: #d9d9d95e;
+        border-radius: 8px;
+    }
+    /* 编辑器边框 */
+    .orca-block-editor {
+        border: 4px ridge #ffffff;  
+        box-shadow: inset 0 0 75px rgb(165 165 165 / 25%);  
+    }
+    
+}
+
+/* 亮色模式背景样式 */
+@media (prefers-color-scheme: light) {
+    /* 背景和面板样式已移至 base.css 中的公共样式类 */
+    /* 请确保在HTML中为相应元素添加 w95-app-background 和 w95-panels-transparent 类 */
+}
+
+
+
+
+
+
+/* 暗色模式编辑器样式 */
+@media (prefers-color-scheme: dark) {
+
+    /* 暗色模式背景 */
+    body.windows #app { 
+        background: #1b2b5817;
+        background-image: linear-gradient(to right, rgb(69 69 69 / 22%) 1px, transparent 0.5px), linear-gradient(to bottom, rgb(51 51 51 / 18%) 1px, transparent 0.5px);
+        background-size: 15px 15px;
+    }
+
+    /* 聚焦属性显示颜色 */
+    .orca-repr-tag-props {
+        background: #0000005e;
+        border-radius: 8px;
+    }
+
+    /* 左侧按钮颜色 */
+    .orca-headbar-sidebar-tools .orca-button {
+        color: hsl(0, 0%, 100%);
+    }
+}
+
+/* 通用编辑器样式 */

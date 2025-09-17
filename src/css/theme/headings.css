@@ -1,0 +1,214 @@
+/* ========================================
+   标题相关样式模块 (Headings Styles)
+   ========================================
+   功能：处理各级标题的显示样式和交互效果
+   包含：标题折叠、标题级别显示、标题颜色等
+   ======================================== */
+
+/* 去除标题折叠样式 */
+i.orca-block-handle.ti.ti-h-1.orca-block-handle-collapsed:not(:hover)::before {
+    content: "";
+}
+i.orca-block-handle.ti.ti-h-2.orca-block-handle-collapsed:not(:hover)::before {
+    content: "";
+}
+i.orca-block-handle.ti.ti-h-3.orca-block-handle-collapsed:not(:hover)::before {
+    content: "";
+}
+
+i.orca-block-handle.ti.ti-h-4.orca-block-handle-collapsed:not(:hover)::before {
+    content: "";
+}
+
+i.orca-block-handle.ti[class*="ti-h-"].orca-block-handle-collapsed {
+    color: #595959;
+    border-radius: 0%;
+    background: none;
+}
+
+@media (prefers-color-scheme: dark) {
+    /* 暗色模式下的标题折叠样式 */
+    i.orca-block-handle.ti[class*="ti-h-"].orca-block-handle-collapsed {
+        color: #969696;
+    }
+}
+
+/* 亮色模式标题样式 */
+@media (prefers-color-scheme: light) {
+    /* 标题设置 */
+    .orca-repr-heading-content[data-level="1"] {
+        border-bottom: 1px dashed var(--orca-color-border);
+        padding-bottom: 6px; /* 调整标题与下划线之间的间距 */
+        margin-bottom: 6px; /* 调整下划线与下方内容之间的间距 */
+        color: #34548a;
+    }
+    
+    .orca-repr-heading-content[data-level="2"] {
+        border-bottom: 1px dashed var(--orca-color-border);
+        padding-bottom: 4px; /* 调整标题与下划线之间的间距 */
+        margin-bottom: 6px; /* 调整下划线与下方内容之间的间距 */
+        color: #000000;
+    }
+    
+    .orca-repr-heading-content[data-level="3"] {
+        padding-bottom: 2px; /* 调整标题与下划线之间的间距 */
+        margin-bottom: 4px; /* 调整下划线与下方内容之间的间距 */
+    }
+    
+    .orca-repr-heading-content[data-level="4"] {
+        padding-bottom: 0px; /* 调整标题与下划线之间的间距 */
+        margin-bottom: 2px; /* 调整下划线与下方内容之间的间距 */
+    }
+
+    /* 标题悬浮显示级别 */
+    .orca-repr-heading-content[data-level="1"] {
+        color: #4973bd;
+        padding-bottom: 2px;
+        margin-bottom: 4px;
+        font-size: 1.6em;
+        position: relative;
+    }
+
+    .orca-repr-heading-content[data-level="2"] {
+        padding-bottom: 2px;
+        margin-bottom: 4px;
+        font-size: 1.4em;
+        position: relative;
+    }
+
+    .orca-repr-heading-content[data-level="3"] {
+        padding-bottom: 2px;
+        margin-bottom: 4px;
+        position: relative;
+    }
+
+    .orca-repr-heading-content[data-level="4"] {
+        padding-bottom: 0px;
+        margin-bottom: 2px;
+        position: relative;
+    }
+
+    /* 仅在悬停时显示标题级别数字，保持简洁 */
+    .orca-repr-heading-content[data-level="1"]::after,
+    .orca-repr-heading-content[data-level="2"]::after,
+    .orca-repr-heading-content[data-level="3"]::after,
+    .orca-repr-heading-content[data-level="4"]::after {
+        content: "";
+        font-size: 0.7em;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        margin-left: 0.5em;
+    }
+
+    .orca-repr-heading-content[data-level="1"]:hover::after {
+        content: "1";
+        opacity: 0.4;
+    }
+
+    .orca-repr-heading-content[data-level="2"]:hover::after {
+        content: "2";
+        opacity: 0.4;
+    }
+
+    .orca-repr-heading-content[data-level="3"]:hover::after {
+        content: "3";
+        opacity: 0.4;
+    }
+
+    .orca-repr-heading-content[data-level="4"]:hover::after {
+        content: "4";
+        opacity: 0.4;
+    }
+}
+
+/* 暗色模式标题样式 */
+@media (prefers-color-scheme: dark) {
+    /* 标题设置 */
+    .orca-repr-heading-content[data-level="1"] {
+        border-bottom: 1px dashed var(--orca-color-border);
+        color: #4973bd;
+        padding-bottom: 2px; /* 缩减标题与下划线间距 */
+        margin-bottom: 4px;  /* 缩减下划线与下方内容间距 */
+        font-size: 1.6em;    /* 适当减小字体 */
+    }
+
+    .orca-repr-heading-content[data-level="2"] {
+        border-bottom: 1px dashed var(--orca-color-border);
+        padding-bottom: 2px; /* 缩减标题与下划线间距 */
+        margin-bottom: 4px;  /* 缩减下划线与下方内容间距 */
+        font-size: 1.4em;    /* 适当减小字体 */
+    }
+
+    .orca-repr-heading-content[data-level="3"] {
+        padding-bottom: 2px; /* 调整标题与下划线之间的间距 */
+        margin-bottom: 4px; /* 调整下划线与下方内容之间的间距 */
+    }
+    
+    .orca-repr-heading-content[data-level="4"] {
+        padding-bottom: 0px; /* 调整标题与下划线之间的间距 */
+        margin-bottom: 2px; /* 调整下划线与下方内容之间的间距 */
+    }
+
+    /* 标题悬浮显示级别 */
+    .orca-repr-heading-content[data-level="1"] {
+        color: #4973bd;
+        padding-bottom: 2px;
+        margin-bottom: 4px;
+        font-size: 1.6em;
+        position: relative;
+    }
+
+    .orca-repr-heading-content[data-level="2"] {
+        color: #ffffff;
+        padding-bottom: 2px;
+        margin-bottom: 4px;
+        font-size: 1.4em;
+        position: relative;
+    }
+
+    .orca-repr-heading-content[data-level="3"] {
+        color: #ffffff;
+        padding-bottom: 2px;
+        margin-bottom: 4px;
+        position: relative;
+    }
+
+    .orca-repr-heading-content[data-level="4"] {
+        color: #ffffff;
+        padding-bottom: 0px;
+        margin-bottom: 2px;
+        position: relative;
+    }
+
+    /* 仅在悬停时显示标题级别数字，保持简洁 */
+    .orca-repr-heading-content[data-level="1"]::after,
+    .orca-repr-heading-content[data-level="2"]::after,
+    .orca-repr-heading-content[data-level="3"]::after,
+    .orca-repr-heading-content[data-level="4"]::after {
+        content: "";
+        font-size: 0.7em;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        margin-left: 0.5em;
+    }
+
+    .orca-repr-heading-content[data-level="1"]:hover::after {
+        content: "1";
+        opacity: 0.4;
+    }
+
+    .orca-repr-heading-content[data-level="2"]:hover::after {
+        content: "2";
+        opacity: 0.4;
+    }
+
+    .orca-repr-heading-content[data-level="3"]:hover::after {
+        content: "3";
+        opacity: 0.4;
+    }
+
+    .orca-repr-heading-content[data-level="4"]:hover::after {
+        content: "4";
+        opacity: 0.4;
+    }
+}

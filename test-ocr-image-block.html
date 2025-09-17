@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>隐藏OCR图片块功能测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-info {
+            background: #e8f5e8;
+            border: 1px solid #4caf50;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .modal-demo {
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            background: #fff;
+            margin: 20px 0;
+        }
+        .modal-demo .orca-menu {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8f8f8;
+        }
+        .modal-demo .orca-search-modal-footer {
+            border-top: 1px solid #ddd;
+            padding: 10px 15px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-demo .orca-menu-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .modal-demo .ti-photo {
+            width: 16px;
+            height: 16px;
+            background: #666;
+            border-radius: 2px;
+            position: relative;
+        }
+        .modal-demo .ti-photo::before {
+            content: "📷";
+            font-size: 12px;
+        }
+        .modal-demo .ti-photo.ocr::before {
+            content: "🔍";
+        }
+        .state-demo {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .state-item {
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            background: #fff;
+            text-align: center;
+        }
+        .state-item h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        .state-icon {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-info">
+        <h3>🧪 隐藏OCR图片块功能测试</h3>
+        <p>这个页面用于测试隐藏OCR图片块功能。请加载 W95 主题插件，然后查看搜索模态框底部是否出现了OCR图片块切换按钮。</p>
+        <p><strong>测试步骤：</strong></p>
+        <ol>
+            <li>加载 W95 主题插件</li>
+            <li>打开搜索模态框（如果有的话）</li>
+            <li>查看底部是否出现OCR图片块切换按钮</li>
+            <li>点击按钮测试三种状态：关闭 → 隐藏OCR图片块 → 仅显示OCR图片块</li>
+            <li>刷新页面验证状态持久化</li>
+        </ol>
+    </div>
+
+    <div class="test-container">
+        <h3>模拟搜索模态框</h3>
+        <p>下面的模拟模态框用于测试OCR图片块切换功能：</p>
+        
+        <div class="modal-demo">
+            <div class="orca-menu orca-search-modal">
+                <h4>搜索结果</h4>
+                <div class="orca-menu-item orca-search-modal-block-item">
+                    <div class="ti-photo"></div>
+                    <span>普通文本块</span>
+                </div>
+                <div class="orca-menu-item orca-search-modal-block-item">
+                    <div class="ti-photo ocr"></div>
+                    <span>OCR图片块 1</span>
+                </div>
+                <div class="orca-menu-item orca-search-modal-block-item">
+                    <div class="ti-photo"></div>
+                    <span>另一个普通文本块</span>
+                </div>
+                <div class="orca-menu-item orca-search-modal-block-item">
+                    <div class="ti-photo ocr"></div>
+                    <span>OCR图片块 2</span>
+                </div>
+                <div class="orca-menu-item orca-search-modal-block-item">
+                    <div class="ti-photo"></div>
+                    <span>第三个普通文本块</span>
+                </div>
+            </div>
+            <div class="orca-search-modal-footer">
+                <span>OCR图片块切换按钮应该出现在这里</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h3>三种状态说明</h3>
+        <div class="state-demo">
+            <div class="state-item">
+                <h4>🔴 关闭 (状态 0)</h4>
+                <div class="state-icon">❌</div>
+                <p>显示所有块，不进行任何过滤</p>
+                <div style="background: #f0f0f0; padding: 10px; border-radius: 4px; font-size: 12px;">
+                    普通块 ✅<br>
+                    OCR块 ✅
+                </div>
+            </div>
+            <div class="state-item">
+                <h4>🟡 隐藏OCR图片块 (状态 1)</h4>
+                <div class="state-icon">🚫</div>
+                <p>隐藏所有OCR图片块，只显示普通块</p>
+                <div style="background: #fff3cd; padding: 10px; border-radius: 4px; font-size: 12px;">
+                    普通块 ✅<br>
+                    OCR块 ❌
+                </div>
+            </div>
+            <div class="state-item">
+                <h4>🔵 仅显示OCR图片块 (状态 2)</h4>
+                <div class="state-icon">👁️</div>
+                <p>只显示OCR图片块，隐藏普通块</p>
+                <div style="background: #d1ecf1; padding: 10px; border-radius: 4px; font-size: 12px;">
+                    普通块 ❌<br>
+                    OCR块 ✅
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="test-container">
+        <h3>功能说明</h3>
+        <ul>
+            <li><strong>OCR检测</strong>：通过检查 <code>.ti-photo</code> 元素的伪元素内容来识别OCR图片块</li>
+            <li><strong>三重状态</strong>：关闭 → 隐藏OCR图片块 → 仅显示OCR图片块 → 循环</li>
+            <li><strong>状态持久化</strong>：刷新页面后保持上次的状态</li>
+            <li><strong>按钮位置</strong>：按钮添加在搜索模态框的底部</li>
+            <li><strong>状态样式</strong>：不同状态有不同的颜色和图标</li>
+            <li><strong>DOM操作</strong>：通过修改 <code>display</code> 样式来控制块的显示/隐藏</li>
+        </ul>
+    </div>
+
+    <div class="test-container">
+        <h3>当前插件列表</h3>
+        <p>W95 主题现在包含以下模块化插件：</p>
+        <ol>
+            <li><strong>查询视图切换</strong> (优先级 1) - 切换查询视图显示</li>
+            <li><strong>标题编号切换</strong> (优先级 2) - 自动添加标题编号</li>
+            <li><strong>属性折叠切换</strong> (优先级 3) - 折叠属性块</li>
+            <li><strong>块引用隐藏切换</strong> (优先级 4) - 隐藏仅块引用内容</li>
+            <li><strong>块引用高亮切换</strong> (优先级 5) - 高亮仅块引用内容</li>
+            <li><strong>镜像容器切换</strong> (优先级 6) - 隐藏/显示镜像容器</li>
+            <li><strong>列表面包屑切换</strong> (优先级 7) - 隐藏/显示列表面包屑</li>
+            <li><strong>卡片视图极简切换</strong> (优先级 8) - 隐藏/显示卡片标题和面包屑</li>
+            <li><strong>卡片封面比例切换</strong> (优先级 9) - 控制卡片封面比例</li>
+            <li><strong>查询列表块创建时间显示</strong> (优先级 10) - 显示查询列表块创建时间</li>
+            <li><strong>主题2切换</strong> (优先级 11) - 切换到主题2样式</li>
+            <li><strong>隐藏OCR图片块</strong> (优先级 12) - 控制OCR图片块的显示/隐藏 ⭐ <strong>新增</strong></li>
+        </ol>
+    </div>
+
+    <script>
+        // 模拟 Orca 环境
+        window.orca = {
+            state: {
+                locale: 'zh-CN'
+            },
+            themes: {
+                register: () => {},
+                unregister: () => {}
+            }
+        };
+
+        // 加载插件
+        const script = document.createElement('script');
+        script.src = './dist/index.js';
+        script.onload = () => {
+            console.log('✅ W95 主题插件已加载');
+            if (window.load) {
+                window.load('w95-theme');
+            }
+        };
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>

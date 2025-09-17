@@ -1,0 +1,47 @@
+/* ========================================
+   长文模式相关样式模块 (Longform Styles)
+   ========================================
+   功能：处理长文模式下的布局和样式调整
+   包含：长文模式下的块间距、列表缩进、引述样式等
+   ======================================== */
+
+/* 长文模式 */
+@scope (.orca-long-form) to (> .orca-repr > .orca-repr-main, .orca-query-editor, .orca-whiteboard) {
+    /* 调整不同块类型之间的间距 */
+    :scope.orca-block:not([data-type=ol],[data-type=ul],[data-type=task])>.orca-repr>.orca-repr-children>.orca-block:is([data-type=ol],[data-type=ul],[data-type=task])+.orca-block:not([data-type=ol],[data-type=ul],[data-type=task]), 
+    .orca-block:not([data-type=ol],[data-type=ul],[data-type=task])>.orca-repr>.orca-repr-children>.orca-block:is([data-type=ol],[data-type=ul],[data-type=task])+.orca-block:not([data-type=ol],[data-type=ul],[data-type=task]) {
+        margin-top: .2em; 
+    }
+}
+
+/* 长文模式下的无序列表缩进 */
+@scope (.orca-long-form) to (> .orca-repr > .orca-repr-main, .orca-query-editor, .orca-whiteboard) {
+    .orca-repr-ul-content {
+        /* 无序列表缩进 */
+        padding-left: 35px;
+    }
+}
+
+/* 长文模式下的有序列表缩进 */
+@scope (.orca-long-form) to (> .orca-repr > .orca-repr-main, .orca-query-editor, .orca-whiteboard) {
+    .orca-repr-ol-content {
+        /* 有序列表缩进 */
+        padding-left: 10px;
+    }
+}
+
+/* 长文模式下的引述类型选择器样式 */
+@scope (.orca-long-form) to (> .orca-repr > .orca-repr-main, .orca-query-editor, .orca-whiteboard) {
+    .orca-repr-quote2-info .orca-repr-quote2-type-selector {
+        color: #fdeee4 !important;
+        top: 0;
+    }
+}
+
+/* 长文模式下的段落间距调整 */
+@scope (.orca-long-form) to (> .orca-repr > .orca-repr-main, .orca-query-editor, .orca-whiteboard) {
+    .orca-repr-main::after {
+        margin-bottom: 0.25em;
+        height: 0.10em;
+    }
+}

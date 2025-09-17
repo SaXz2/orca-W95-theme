@@ -1,0 +1,152 @@
+/* ========================================
+   镜像块相关样式模块 (Mirror Block Styles)
+   ========================================
+   功能：处理镜像块的显示、交互和样式
+   包含：Tana风格镜像块、镜像块图标、折叠线等
+   ======================================== */
+
+
+
+/* 查询页面下的镜像块背景颜色区分 */
+@media (prefers-color-scheme: dark) {
+    .orca-query-list-block:has(> .orca-block.orca-container[data-type="mirror"]) {
+        background: #a3752630;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    .orca-query-list-block:has(> .orca-block.orca-container[data-type="mirror"]) {
+        background: #ffebcd8c;
+    }
+}
+
+
+/* 镜像块变量定义 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --my-bgcolor-mirror-block-handle: hsl(0 0% 25%);
+        --my-color-mirror-block-handle: hsl(0 0% 50%);
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --my-bgcolor-mirror-block-handle: hsl(0 0% 85%);
+        --my-color-mirror-block-handle: hsl(0 0% 65%);
+    }
+}
+
+/* Tana风格镜像块（无背景+虚线） */
+
+/* 移除镜像块背景底板 */
+.orca-repr-quote2 .orca-repr.orca-mirror-bg:before {
+    display: none;
+}
+
+/* 统一各种情况下的镜像块icon */
+/* 覆盖自定义icon，强制激活tabler-icons */
+[data-type="mirror"]>.orca-repr>.orca-repr-main .orca-block-handle:not(:hover) {
+    font-family: tabler-icons !important;
+    speak: none;
+    font-style: normal;
+    font-weight: 400;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* 统一所有自定义icon的样式 */
+[data-type="mirror"]>.orca-repr>.orca-repr-main .orca-block-handle:not(:hover) {
+    --my-size-bullet: 16px;
+    width: var(--my-size-bullet);
+    height: var(--my-size-bullet);
+    font-size: 19px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    top: calc(0.5 * (var(--orca-block-line-height) - var(--my-size-bullet)));
+
+    /* 统一icon、color、bg */
+    &:before {
+        content: "\ff8d";
+        /* 覆盖掉ul的特殊颜色，采用默认颜色 */
+        color: var(--orca-block-handle-passive-color);
+    }
+    &.orca-block-handle-collapsed:before {
+        color: var(--my-color-mirror-block-handle);
+    }
+    /* 包裹色和原生折叠包裹色一致 */
+    &.orca-block-handle-collapsed {
+        background-color: var(--my-bgcolor-mirror-block-handle);
+    }
+}
+
+/* 重定义镜像块的折叠线 */
+[data-type="mirror"]>.orca-repr>.orca-repr-main .orca-repr-scope-line {
+    &:before {
+        border-left: 2px dashed var(--orca-color-scope-line);
+    }
+
+    &:hover {
+        background-color: unset;
+    }
+
+    &:hover:before {
+        border-left-width: 3px;
+    }
+}
+
+/* 仅对不被 .orca-query-list 包含的目标元素生效 */
+/* 原样式定义（保持不变） */
+.orca-repr.orca-mirror-bg:before {
+    left: calc(max(0, var(--orca-block-indent, 0)) * var(--orca-spacing-indent) + -28px);
+    border-radius: 10px;
+    border: 1px solid hsla(0, 0%, 0%, 0.116);
+    top: -3px;
+}
+
+@media (prefers-color-scheme: dark) {
+    .orca-repr.orca-mirror-bg:before {
+        background-color: hsl(210.46deg 29.97% 7.38% / 63%);
+    }
+}
+
+/* 针对特定路径的元素，重置:before伪元素样式 */
+#main > div > div.orca-panel.active > div:nth-child(3) > div.orca-block-editor > div.orca-block-editor-main > div.orca-block-editor-none-editable > section > div > div > div.orca-query-results > div.orca-query-list > div:nth-child(1) > div.orca-block.orca-container.orca-block-postfix.orca-query-list-block-block > div .orca-repr.orca-mirror-bg:before {
+    /* 重置为默认值，取消原有样式 */
+    left: auto; /* 取消自定义left值 */
+    border-radius: 0; /* 取消圆角 */
+    border: none; /* 取消边框 */
+}
+
+/* 明确重置 .orca-query-list 内部所有目标元素的样式 */
+.orca-query-list .orca-repr.orca-mirror-bg:before {
+    /* 重置为默认状态，覆盖上面的样式 */
+    left: auto;
+    border-radius: 0;
+    border: none;
+    /* 其他需要重置的属性 */
+}
+
+/* 调整编辑区镜像块 */
+.orca-block.orca-container[data-type="mirror"] {
+    margin-bottom: 8px;
+    padding-right: var(--orca-spacing-lg);
+}
+
+/* 查询页面下的镜像块背景颜色区分 */
+@media (prefers-color-scheme: light) {
+    .orca-query-list-block:has(> .orca-block.orca-container[data-type="mirror"]) {
+        background: #ffebcd8c;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .orca-query-list-block:has(> .orca-block.orca-container[data-type="mirror"]) {
+        background: #a3752630;
+    }
+}

@@ -1,0 +1,35 @@
+/* ========================================
+   目录相关样式模块 (TOC Styles)
+   ========================================
+   功能：处理目录的显示样式和交互效果
+   包含：目录边框、目录调整器、目录背景等
+   ======================================== */
+
+/* 亮色模式目录样式 */
+@media (prefers-color-scheme: light) {
+    /* 目录样式 */
+    .orca-toc {
+        border: 4px ridge #ffffff;
+        border-right: 0;
+    }
+    
+    .orca-toc-resizer {
+        width: calc(0 * var(--orca-spacing-sm));
+    }
+}
+
+/* 暗色模式目录样式 */
+@media (prefers-color-scheme: dark) {
+    /* 目录样式 */
+    .orca-toc {
+        background: #1e2127;
+    }
+    
+    .orca-toc-resizer {
+        opacity: 0;
+    }
+    
+    .orca-toc-resizer:hover {
+        opacity: 1;
+    }
+}

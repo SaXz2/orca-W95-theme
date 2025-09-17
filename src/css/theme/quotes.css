@@ -1,0 +1,292 @@
+/* ========================================
+   引述相关样式模块 (Quotes Styles)
+   ========================================
+   功能：处理各种引述类型的显示样式
+   包含：普通引用、信息引用、警告引用、错误引用、提示引用、重要引用、注释引用等
+   ======================================== */
+
+/* 整体样式调整 */
+.orca-repr-quote2-type-selector {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.orca-repr-quote2:after {
+    /* 去竖线 */
+    bottom: auto; 
+}
+
+.orca-repr-children {
+    line-height: 1.6;
+}
+
+/* 亮色模式引述样式 */
+@media (prefers-color-scheme: light) {
+    /* 各引述类型调整 */
+    .orca-repr-quote2-quote::before {
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        background-color: #f5f5f5;
+        border: 1px solid #e0e0e0;
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.08);
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+    }
+    
+    i.orca-repr-quote2-icon.ti.ti-blockquote::before {
+        content: "\efbe";
+    }
+
+    /* 信息引用 */
+    .orca-repr-quote2-info::before {
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        background-color: #f1e0ca87;
+        border: 3px solid #E8843F;
+        box-shadow: 0 2px 2px rgba(59, 130, 246, 0.08);
+        box-sizing: border-box;
+        top: 5px;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+        border-top: 37px solid #E8843F;
+    }
+    
+    .orca-repr-quote2-info .orca-repr-quote2-type-selector {
+        color: #fdeee4 !important;
+    }
+
+    /* 警告引用 */
+    .orca-repr-quote2-warning::before {
+        background: #fff8e6;
+        border-left: 3px solid #e6b800;
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        border: 1px solid #e6b800;
+        box-shadow: 0 2px 2px rgba(59, 130, 246, 0.08);
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+    }
+
+    /* 错误引用 */
+    .orca-repr-quote2-error::before {
+        background: #fdecea;
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        border: 1px solid #e53e3e;
+        box-shadow: 0 2px 2px rgba(59, 130, 246, 0.08);
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+        border-left: 3px solid #e53e3e;
+    }
+
+    /* 提示引用 */
+    .orca-repr-quote2-tip::before {
+        background: #e6f4ea;
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        border: 1px solid #48bb78;
+        box-shadow: 0 2px 2px rgba(59, 130, 246, 0.08);
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+        border-left: 3px solid #48bb78;
+    }
+
+    /* 重要引用 */
+    .orca-repr-quote2-important::before {
+        background: #f3eefc;
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        border: 1px solid #9f7aea;
+        box-shadow: 0 2px 2px rgba(59, 130, 246, 0.08);
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+        border-left: 3px solid #9f7aea;
+    }
+
+    /* 注释引用 */
+    .orca-repr-quote2-note::before {
+        background: #fafafa;
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        border: 1px solid #eee;
+        box-shadow: 0 2px 2px rgba(59, 130, 246, 0.08);
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+    }
+}
+
+/* 暗色模式引述样式 */
+@media (prefers-color-scheme: dark) {
+    /* 1. 普通引用 */
+    .orca-repr-quote2-quote::before {
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        background-color: #313642; /* 比背景略浅，突出区块 */
+        border: 1px solid #424858; /* 边框与背景拉开层次 */
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); /* 低调阴影增强层次 */
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+    }
+    
+    i.orca-repr-quote2-icon.ti.ti-blockquote::before {
+        content: "\efbe";
+    }
+
+    /* 2. 信息引用 */
+    .orca-repr-quote2-info::before {
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        background-color: #3f2a1387; /* 深色半透明背景 */
+        border: 3px solid #f97316; /* 更亮的橙色边框 */
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3); /* 深色阴影增强层次感 */
+        box-sizing: border-box;
+        top: 5px;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: auto;
+        border-top: 37px solid #f97316; /* 顶部条使用更亮的橙色 */
+    }
+    
+    .orca-repr-quote2-info .orca-repr-quote2-type-selector {
+        color: #fdeee4 !important;
+    }
+
+    /* 3. 警告引用 */
+    .orca-repr-quote2-warning::before {
+        background: #4A3F26; /* 深棕黄，与背景对比适中 */
+        border-left: 3px solid #E6B800; /* 保留亮色左侧线 */
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        border: 1px solid #8C7625; /* 暗黄边框，不刺眼 */
+        box-shadow: 0 2px 2px rgba(230, 184, 0, 0.15); /* 柔和黄色阴影 */
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+    }
+
+    /* 4. 错误引用 */
+    .orca-repr-quote2-error::before {
+        background: #472C2C; /* 深棕红，与背景对比明显 */
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        border: 1px solid #7A3535; /* 暗红边框，避免过亮 */
+        box-shadow: 0 2px 2px rgba(229, 62, 62, 0.15); /* 柔和红色阴影 */
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+        border-left: 3px solid #E53E3E; /* 保留亮色左侧线 */
+    }
+
+    /* 5. 提示引用 */
+    .orca-repr-quote2-tip::before {
+        background: #2A3C2A; /* 深绿，与背景协调 */
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        border: 1px solid #3D703D; /* 暗绿边框，自然过渡 */
+        box-shadow: 0 2px 2px rgba(72, 187, 120, 0.15); /* 柔和绿色阴影 */
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+        border-left: 3px solid #48BB78; /* 保留亮色左侧线 */
+    }
+
+    /* 6. 重要引用 */
+    .orca-repr-quote2-important::before {
+        background: #3A3057; /* 深紫，与背景对比适中 */
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        border: 1px solid #5C4A8F; /* 暗紫边框，呼应类型 */
+        box-shadow: 0 2px 2px rgba(159, 122, 234, 0.15); /* 柔和紫色阴影 */
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+        border-left: 3px solid #9F7AEA; /* 保留亮色左侧线 */
+    }
+
+    /* 7. 注释引用 */
+    .orca-repr-quote2-note::before {
+        background: #313642; /* 与普通引用一致，保持低调 */
+        position: absolute;
+        left: calc(var(--orca-spacing-indent) * var(--orca-block-indent));
+        content: "";
+        display: block;
+        border: 1px solid #424858; /* 统一边框风格 */
+        box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2); /* 与普通引用一致 */
+        box-sizing: border-box;
+        top: 0;
+        bottom: 2px;
+        right: 0;
+        border-radius: 8px;
+        z-index: -1;
+    }
+}

@@ -1,0 +1,59 @@
+/* ========================================
+   日历相关样式模块 (Calendar Styles)
+   ========================================
+   功能：处理日历的显示样式和交互效果
+   包含：日期选择、星期显示、日历布局等
+   ======================================== */
+
+/* 亮色模式日历样式 */
+@media (prefers-color-scheme: light) {
+    .days {
+        /* 日期背景色 */
+        background: #ffffff;
+        border: 4px ridge #ffffff;
+        border-right: 0;
+        box-shadow: inset 0 0 75px rgb(165 165 165 / 25%);
+    }
+}
+
+
+
+/* 暗色模式日历样式 */
+@media (prefers-color-scheme: dark) {
+    /* 日期选择动效添加 */
+    @scope (.orca-calendar) {
+        .day {
+            aspect-ratio: 1 / 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            font-size: var(--orca-fontsize-xs);
+            width: 25px;
+            position: relative;
+            border-radius: 50%;
+            transition: background-color 1s ease;
+        }
+    }
+    
+    @scope (.orca-calendar) {
+        .day:not(.value):hover {
+            background-color: var(--orca-color-primary-7);
+            font-weight: var(--orca-fontweight-lg);
+            transition: background-color 0.2s ease;
+        }
+    }
+}
+
+/* 通用日历样式 */
+@scope (.orca-calendar) {
+    .week {
+        grid-column: 1;
+        text-align: center;
+        color: hsl(0deg 2.39% 68.69% / 82%);
+        font-size: var(--orca-fontsize-2xs);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

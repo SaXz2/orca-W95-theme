@@ -1,0 +1,96 @@
+/* ========================================
+   缩进线相关样式模块 (Scope Styles)
+   ========================================
+   功能：处理编辑器中的缩进线显示和交互
+   包含：顶层块缩进、缩进线颜色、文本块聚焦等
+   ======================================== */
+
+/* 顶层块缩进线颜色变量定义 */
+@media (prefers-color-scheme: dark) {
+    :root {
+        /* 暗色模式下的缩进线颜色 */
+        --my-color-scope-line: #6a6f7ea8;
+    }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        /* 亮色模式下的缩进线颜色 */
+        --my-color-scope-line: hsla(0, 0%, 55%, 0.644);
+    }
+}
+
+/* 和次级块同缩进，并回拽一个缩进 */
+@scope(#main) to (.orca-long-form, .orca-popup) {
+
+    /* 回拽一个缩进 - 顶层块容器整个左拉一个缩进距离以维持宽度不变 */
+    .orca-block-editor-blocks>[data-indent="0"]:has(>.orca-repr:not(.orca-repr-table2, .orca-repr-quote2)) {
+        margin-left: calc(-1 * var(--orca-spacing-indent));
+    }
+
+    /* 顶层块处理 */
+    .orca-block-editor-blocks>[data-indent="0"]>.orca-repr:not(.orca-repr-table2, .orca-repr-quote2)>.orca-repr-main {
+
+        /* 顶层块减少一个缩进 */
+        &>:is(.orca-repr-main-content, .orca-repr-main-none-editable) {
+            margin-left: var(--orca-spacing-indent) !important;
+        }
+
+        /* 折叠按钮和块标位置调整 */
+        &>.orca-repr-main-none-editable>i {
+            transform: translateX(var(--orca-spacing-indent));
+        }
+
+        /* 顶层块缩进线往上拉开一定距离 */
+        &>.orca-repr-main-none-editable>.orca-repr-scope-line {
+            top: calc(var(--orca-block-line-height) * .5 - 1px) !important;
+        }
+
+        /* 绘制拐弯缩进线样式 */
+        &>.orca-repr-main-none-editable>.orca-repr-scope-line:before {
+            width: calc(var(--orca-spacing-indent) - 6px);
+            pointer-events: none;
+            border-top: .5px dotted var(--my-color-scope-line);
+            border-left-color: var(--my-color-scope-line);
+            border-left-style: dotted;
+            border-left-width: .5px;
+            border-top-left-radius: 10px;
+        }
+
+        /* 更改缩进线的hover变色逻辑，改用边框 */
+        &>.orca-repr-main-none-editable>.orca-repr-scope-line:hover {
+            background-color: unset;
+        }
+
+        &>.orca-repr-main-none-editable>.orca-repr-scope-line:hover:before {
+            border-width: 3px;
+            border-left-style: solid;
+            border-top-style: solid;
+        }
+
+    }
+
+    /* 适配1.31版本的css变更：orca-block增加新属性data-editable="false" */
+    /* 因为需要存放插入行按钮，所以额外加了margin */
+    .orca-block-editor-blocks>[data-indent="0"][data-editable="false"]:not([data-type="journal"])>.orca-repr:not(.orca-repr-table2, .orca-repr-quote2)>.orca-repr-main>.orca-repr-main-none-editable>.orca-repr-scope-line {
+        top: calc(var(--orca-block-line-height) * .5 - 1px + var(--orca-spacing-md)) !important;
+    }
+
+}
+
+/* 文本类型块聚焦放大字体，但是排除弹出框和模态层 */
+/* 2. 文本类型块-1块，标题级字体大小 */
+@scope(#main) to (.orca-popup) {
+    .orca-block-editor-blocks>[data-indent="0"]>:is(.orca-repr-text, .orca-repr-ul, .orca-repr-ol, .orca-repr-task, .orca-repr-heading)>.orca-repr-main>.orca-repr-main-content {
+
+        /* 继承原生h1字号日志块字号风格 */
+        font-size: 18px;
+        /* 沿用日志顶层块的前后边距 */
+        margin: var(--orca-spacing-md) 0;
+
+        /* 取消自定义样式文本样式的大号字体 */
+        & .orca-inline.f {
+            font-size: inherit;
+        }
+    }
+}

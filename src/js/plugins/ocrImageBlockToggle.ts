@@ -2,6 +2,7 @@
  * 隐藏OCR图片块模块
  * - 遵循最小可行方案：持久化状态，按钮控制，通过DOM操作控制OCR图片块显示
  * - 支持三种状态：关闭、隐藏OCR图片块、仅显示OCR图片块
+ * - 性能优化：使用共享观察者和节流逻辑
  */
 
 import type { 
@@ -10,6 +11,7 @@ import type {
   OcrImageBlockToggleState 
 } from '../../types';
 import { OCR_IMAGE_BLOCK_TOGGLE_CONFIG } from '../../constants';
+import { observerManager } from '../utils/observerManager';
 
 export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin {
   private state: OcrImageBlockToggleState = {
@@ -21,6 +23,8 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
   };
 
   private config = OCR_IMAGE_BLOCK_TOGGLE_CONFIG;
+  private updateTimer: number | null = null;
+  private observerId: string = 'ocrImageBlockToggle';
 
   constructor() {
     // 这个插件不需要按钮管理器，因为它添加按钮到搜索模态框而不是工具栏
@@ -31,7 +35,13 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
 
     this.initState();
     this.createButton();
-    this.setupMainObserver();
+    
+    // 使用共享观察者而不是创建新的观察者
+    observerManager.register(
+      this.observerId,
+      this.onMutations.bind(this),
+      12 // 优先级
+    );
 
     this.state.isInitialized = true;
     console.log('✅ W95 隐藏OCR图片块模块已初始化');
@@ -46,10 +56,13 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
       button.remove();
     }
 
-    // 断开观察者
-    if (this.state.mainObserver) {
-      this.state.mainObserver.disconnect();
-      this.state.mainObserver = null;
+    // 注销共享观察者回调
+    observerManager.unregister(this.observerId);
+
+    // 清除更新定时器
+    if (this.updateTimer !== null) {
+      clearTimeout(this.updateTimer);
+      this.updateTimer = null;
     }
 
     // 恢复所有块的原始显示状态
@@ -57,6 +70,49 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
 
     this.state.isInitialized = false;
     console.log('✅ W95 隐藏OCR图片块模块已销毁');
+  }
+  
+  /**
+   * 处理 DOM 变化
+   * 由共享观察者调用
+   */
+  public onMutations(mutations: MutationRecord[]): void {
+    // 检查是否有相关变化
+    const hasRelevantChanges = mutations.some(mutation => {
+      // 检查是否是搜索模态框相关变化
+      if (mutation.target instanceof Element) {
+        if (mutation.target.matches(this.config.containerSelector) || 
+            mutation.target.closest(this.config.containerSelector)) {
+          return true;
+        }
+        
+        // 检查是否是块项目相关变化
+        if (mutation.target.matches(this.config.targetBlockSelector) || 
+            mutation.target.closest(this.config.targetBlockSelector)) {
+          return true;
+        }
+      }
+      return false;
+    });
+    
+    if (hasRelevantChanges) {
+      // 检查按钮是否需要创建
+      const button = document.getElementById(this.config.buttonId);
+      let container = document.querySelector(this.config.containerSelector);
+      let footer = null;
+      
+      if (container) {
+        footer = container.querySelector(this.config.footerSelector);
+        if (footer && (!button || !footer.contains(button))) {
+          this.createButton();
+        }
+      }
+      
+      // 如果状态不是关闭，更新块显示
+      if (this.state.currentState !== 0) {
+        this.throttledUpdateBlocksDisplay();
+      }
+    }
   }
 
   public getAPI(): OcrImageBlockToggleAPI {
@@ -97,30 +153,71 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
   }
 
   /**
+   * 使用节流逻辑更新块显示
+   */
+  private throttledUpdateBlocksDisplay(): void {
+    if (this.updateTimer !== null) {
+      return; // 如果已经有一个更新计划，不再重复安排
+    }
+    
+    this.updateTimer = window.setTimeout(() => {
+      this.updateBlocksDisplay();
+      this.updateTimer = null;
+    }, 150); // 150ms 的节流延迟
+  }
+
+  /**
    * 更新块的显示状态
    */
   public updateBlocksDisplay(): void {
-    document.querySelectorAll(this.config.targetBlockSelector).forEach(block => {
+    // 使用性能优化的方式处理 DOM
+    const blocks = document.querySelectorAll(this.config.targetBlockSelector);
+    
+    // 首先保存原始显示状态（只处理新的块）
+    blocks.forEach(block => {
       if (!this.state.originalDisplayMap.has(block)) {
         const currentDisplay = (block as HTMLElement).style.display || window.getComputedStyle(block).display;
         this.state.originalDisplayMap.set(block, currentDisplay);
       }
     });
 
-    document.querySelectorAll(this.config.targetBlockSelector).forEach(block => {
-      const isOcrBlock = this.isOcrImageBlock(block);
-      switch(this.state.currentState) {
-        case 1:
-          (block as HTMLElement).style.display = isOcrBlock ? 'none' : this.state.originalDisplayMap.get(block) || '';
-          break;
-        case 2:
-          (block as HTMLElement).style.display = isOcrBlock ? this.state.originalDisplayMap.get(block) || '' : 'none';
-          break;
-        case 0:
-          (block as HTMLElement).style.display = this.state.originalDisplayMap.get(block) || '';
-          break;
+    // 批量处理所有块，减少重排和重绘
+    const ocrBlocks: Element[] = [];
+    const nonOcrBlocks: Element[] = [];
+    
+    // 先分类，避免多次遍历
+    blocks.forEach(block => {
+      if (this.isOcrImageBlock(block)) {
+        ocrBlocks.push(block);
+      } else {
+        nonOcrBlocks.push(block);
       }
     });
+    
+    // 根据当前状态批量设置显示属性
+    switch(this.state.currentState) {
+      case 1: // 隐藏 OCR 图片块
+        ocrBlocks.forEach(block => {
+          (block as HTMLElement).style.display = 'none';
+        });
+        nonOcrBlocks.forEach(block => {
+          (block as HTMLElement).style.display = this.state.originalDisplayMap.get(block) || '';
+        });
+        break;
+      case 2: // 仅显示 OCR 图片块
+        ocrBlocks.forEach(block => {
+          (block as HTMLElement).style.display = this.state.originalDisplayMap.get(block) || '';
+        });
+        nonOcrBlocks.forEach(block => {
+          (block as HTMLElement).style.display = 'none';
+        });
+        break;
+      case 0: // 全部显示
+        blocks.forEach(block => {
+          (block as HTMLElement).style.display = this.state.originalDisplayMap.get(block) || '';
+        });
+        break;
+    }
   }
 
   /**
@@ -167,42 +264,21 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
 
   /**
    * 创建按钮
+   * 优化版本，使用辅助方法和防抖逻辑
    */
   private createButton(): void {
     const oldButton = document.getElementById(this.config.buttonId);
     if (oldButton) oldButton.remove();
 
-    // 尝试多种容器选择器
-    let container = document.querySelector(this.config.containerSelector);
-    let footer = null;
-    
-    if (container) {
-      footer = container.querySelector(this.config.footerSelector);
-    } else {
-      // 备用选择器
-      const alternativeSelectors = [
-        '.orca-menu',
-        '.search-modal',
-        '.modal',
-        '[class*="search"]',
-        '[class*="modal"]'
-      ];
-      
-      for (const selector of alternativeSelectors) {
-        container = document.querySelector(selector);
-        if (container) {
-          footer = container.querySelector(this.config.footerSelector) || 
-                  container.querySelector('.footer') ||
-                  container.querySelector('[class*="footer"]');
-          if (footer) break;
-        }
-      }
-    }
+    // 使用辅助方法查找容器和页脚
+    const { container, footer } = this.findContainerAndFooter();
     
     if (!container || !footer) {
       if (this.state.retryCount < this.config.maxRetries) {
         this.state.retryCount++;
-        setTimeout(() => this.createButton(), this.config.retryInterval);
+        // 使用指数退避策略，减少重试频率
+        const retryDelay = this.config.retryInterval * Math.pow(1.5, this.state.retryCount - 1);
+        setTimeout(() => this.createButton(), retryDelay);
       }
       return;
     }
@@ -234,7 +310,21 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
 
     button.innerHTML = `${this.getButtonSvg()}<span>${this.config.stateTextMap[this.state.currentState as keyof typeof this.config.stateTextMap]}</span>`;
 
-    button.addEventListener('click', () => this.toggleTripleState());
+    // 添加点击事件（使用防抖逻辑）
+    let clickTimeout: number | null = null;
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (clickTimeout !== null) {
+        clearTimeout(clickTimeout);
+      }
+      
+      clickTimeout = window.setTimeout(() => {
+        this.toggleTripleState();
+        clickTimeout = null;
+      }, 100);
+    });
 
     footer.appendChild(button);
     this.state.retryCount = 0;
@@ -292,52 +382,39 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
   }
 
   /**
-   * 设置主观察者
+   * 查找容器和页脚元素
+   * 优化版本，减少重复代码
    */
-  private setupMainObserver(): void {
-    this.state.mainObserver = new MutationObserver((mutations) => {
-      const button = document.getElementById(this.config.buttonId);
-      
-      // 使用相同的容器查找逻辑
-      let container = document.querySelector(this.config.containerSelector);
-      let footer = null;
-      
+  private findContainerAndFooter(): { container: Element | null, footer: Element | null } {
+    let container = document.querySelector(this.config.containerSelector);
+    let footer = null;
+    
+    if (container) {
+      footer = container.querySelector(this.config.footerSelector);
+      if (footer) {
+        return { container, footer };
+      }
+    }
+    
+    // 备用选择器
+    const alternativeSelectors = [
+      '.orca-menu',
+      '.search-modal',
+      '.modal',
+      '[class*="search"]',
+      '[class*="modal"]'
+    ];
+    
+    for (const selector of alternativeSelectors) {
+      container = document.querySelector(selector);
       if (container) {
-        footer = container.querySelector(this.config.footerSelector);
-      } else {
-        const alternativeSelectors = [
-          '.orca-menu',
-          '.search-modal',
-          '.modal',
-          '[class*="search"]',
-          '[class*="modal"]'
-        ];
-        
-        for (const selector of alternativeSelectors) {
-          container = document.querySelector(selector);
-          if (container) {
-            footer = container.querySelector(this.config.footerSelector) || 
-                    container.querySelector('.footer') ||
-                    container.querySelector('[class*="footer"]');
-            if (footer) break;
-          }
-        }
+        footer = container.querySelector(this.config.footerSelector) || 
+                container.querySelector('.footer') ||
+                container.querySelector('[class*="footer"]');
+        if (footer) break;
       }
-      
-      if (container && footer && (!button || !footer.contains(button))) {
-        this.createButton();
-      }
-      
-      if (this.state.currentState !== 0) {
-        this.updateBlocksDisplay();
-      }
-    });
-
-    this.state.mainObserver.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class', 'style']
-    });
+    }
+    
+    return { container, footer };
   }
 }

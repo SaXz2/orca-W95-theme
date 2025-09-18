@@ -164,12 +164,15 @@ export class ToolbarButtonManager {
   private isInitialized = false;
   private retryCount = 0;
   private retryTimer: number | null = null;
+  private debounceTimer: number | null = null;
+  private addButtonsTimer: number | null = null;
 
   constructor(
     private retryInterval: number = 300,
     private maxRetries: number = 30,
     private toolbarSelector: string = '.orca-block-editor-sidetools',
-    private targetPanelSelector: string = '.orca-panel.active'
+    private targetPanelSelector: string = '.orca-panel.active',
+    private debounceDelay: number = 100
   ) {}
 
   /**
@@ -190,12 +193,13 @@ export class ToolbarButtonManager {
       onButtonAdded
     });
 
-    // 如果已经初始化，立即尝试添加按钮
+    // 如果已经初始化，使用防抖逻辑尝试添加按钮
     if (this.isInitialized) {
-      this.tryAddAllButtons();
-      // 按钮添加完成后触发回调
+      this.debouncedTryAddAllButtons();
+      
+      // 按钮添加完成后触发回调（延迟执行，确保按钮已添加）
       if (onButtonAdded) {
-        setTimeout(onButtonAdded, 0);
+        setTimeout(onButtonAdded, this.debounceDelay + 50);
       }
     }
   }
@@ -220,7 +224,7 @@ export class ToolbarButtonManager {
     this.isInitialized = true;
     // 如果有已注册的按钮，立即尝试添加
     if (this.registeredButtons.size > 0) {
-      this.tryAddAllButtons();
+      this.debouncedTryAddAllButtons();
     }
   }
 
@@ -230,9 +234,20 @@ export class ToolbarButtonManager {
   destroy(): void {
     this.isInitialized = false;
     
-    if (this.retryTimer) {
+    // 清除所有定时器
+    if (this.retryTimer !== null) {
       clearTimeout(this.retryTimer);
       this.retryTimer = null;
+    }
+    
+    if (this.debounceTimer !== null) {
+      clearTimeout(this.debounceTimer);
+      this.debounceTimer = null;
+    }
+    
+    if (this.addButtonsTimer !== null) {
+      clearTimeout(this.addButtonsTimer);
+      this.addButtonsTimer = null;
     }
 
     // 移除所有按钮
@@ -243,45 +258,76 @@ export class ToolbarButtonManager {
   }
 
   /**
+   * 使用防抖逻辑尝试添加所有按钮
+   */
+  private debouncedTryAddAllButtons(): void {
+    if (this.debounceTimer !== null) {
+      clearTimeout(this.debounceTimer);
+    }
+    
+    this.debounceTimer = window.setTimeout(() => {
+      this.tryAddAllButtons();
+      this.debounceTimer = null;
+    }, this.debounceDelay);
+  }
+
+  /**
    * 尝试添加所有按钮到工具栏
    */
   private tryAddAllButtons(): void {
-    const activePanel = document.querySelector(this.targetPanelSelector);
-    if (!activePanel) {
-      this.scheduleRetry();
-      return;
+    // 使用防抖逻辑，避免频繁 DOM 操作
+    if (this.addButtonsTimer !== null) {
+      clearTimeout(this.addButtonsTimer);
     }
-
-    const toolbar = activePanel.querySelector(this.toolbarSelector);
-    if (!toolbar) {
-      this.scheduleRetry();
-      return;
-    }
-
-    // 按优先级排序按钮
-    const sortedButtons = Array.from(this.registeredButtons.values())
-      .sort((a, b) => a.priority - b.priority);
-
-    // 添加所有按钮
-    const addedCallbacks: (() => void)[] = [];
     
-    for (const registration of sortedButtons) {
-      if (!toolbar.contains(registration.button)) {
-        toolbar.appendChild(registration.button);
-        // 收集新添加按钮的回调
-        if (registration.onButtonAdded) {
-          addedCallbacks.push(registration.onButtonAdded);
+    this.addButtonsTimer = window.setTimeout(() => {
+      const activePanel = document.querySelector(this.targetPanelSelector);
+      if (!activePanel) {
+        this.scheduleRetry();
+        return;
+      }
+
+      const toolbar = activePanel.querySelector(this.toolbarSelector);
+      if (!toolbar) {
+        this.scheduleRetry();
+        return;
+      }
+
+      // 按优先级排序按钮
+      const sortedButtons = Array.from(this.registeredButtons.values())
+        .sort((a, b) => a.priority - b.priority);
+
+      // 添加所有按钮
+      const addedCallbacks: (() => void)[] = [];
+      
+      for (const registration of sortedButtons) {
+        if (!toolbar.contains(registration.button)) {
+          toolbar.appendChild(registration.button);
+          // 收集新添加按钮的回调
+          if (registration.onButtonAdded) {
+            addedCallbacks.push(registration.onButtonAdded);
+          }
         }
       }
-    }
 
-    this.retryCount = 0;
-    console.log('✅ 所有工具栏按钮已按顺序添加');
-    
-    // 为新添加的按钮执行回调
-    addedCallbacks.forEach(callback => {
-      setTimeout(callback, 0);
-    });
+      this.retryCount = 0;
+      console.log('✅ 所有工具栏按钮已按顺序添加');
+      
+      // 为新添加的按钮执行回调（延迟执行，确保 DOM 已更新）
+      if (addedCallbacks.length > 0) {
+        setTimeout(() => {
+          addedCallbacks.forEach(callback => {
+            try {
+              callback();
+            } catch (error) {
+              console.error('按钮添加回调执行出错:', error);
+            }
+          });
+        }, 10);
+      }
+      
+      this.addButtonsTimer = null;
+    }, 10);
   }
 
   /**
@@ -293,9 +339,14 @@ export class ToolbarButtonManager {
       return;
     }
 
+    if (this.retryTimer !== null) {
+      clearTimeout(this.retryTimer);
+    }
+
     this.retryCount++;
     this.retryTimer = window.setTimeout(() => {
       this.tryAddAllButtons();
+      this.retryTimer = null;
     }, this.retryInterval);
   }
 
@@ -311,5 +362,15 @@ export class ToolbarButtonManager {
    */
   hasButton(id: string): boolean {
     return this.registeredButtons.has(id);
+  }
+  
+  /**
+   * 手动触发按钮添加
+   * 用于在面板切换时重新添加按钮
+   */
+  refreshButtons(): void {
+    if (this.isInitialized) {
+      this.debouncedTryAddAllButtons();
+    }
   }
 }

@@ -16,7 +16,8 @@ import {
   Theme2TogglePluginImpl,
   OcrImageBlockTogglePluginImpl,
   ToolbarButtonManager,
-  TOOLBAR_BUTTON_CONFIG
+  TOOLBAR_BUTTON_CONFIG,
+  observerManager
 } from "./js";
 
 let pluginName: string;
@@ -30,6 +31,9 @@ export async function load(_name: string) {
 
   // 主题注册
   orca.themes.register(pluginName, "W95", "css/theme.css");
+
+  // 初始化共享观察者管理器
+  observerManager.initialize(100); // 设置100ms的节流延迟
 
   // 初始化按钮管理器
   buttonManager = new ToolbarButtonManager(
@@ -70,6 +74,9 @@ export async function unload() {
   if (buttonManager) {
     buttonManager.destroy();
   }
+
+  // 销毁共享观察者管理器
+  observerManager.destroy();
 
   // 取消主题注册
   orca.themes.unregister("W95");

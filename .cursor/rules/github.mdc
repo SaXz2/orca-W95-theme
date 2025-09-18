@@ -10,3 +10,6 @@ alwaysApply: false
     README.md - 使用文档
     LICENSE - 许可证
     如果有编译后产生的Css也一并打包到对应位置
+
+默认 GITHUB_TOKEN 权限不足：新创建的仓库默认的 GITHUB_TOKEN 可能没有创建 Release 的权限
+仓库权限设置：需要确保 Actions 有足够的权限来创建 Release

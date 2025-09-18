@@ -1,6 +1,7 @@
 /**
  * 镜像容器显示切换模块
  * - 遵循最小可行方案：持久化状态，按钮控制，通过CSS隐藏镜像容器
+ * - 性能优化：使用共享观察者和防抖逻辑
  */
 
 import type { 
@@ -10,14 +11,17 @@ import type {
 } from '../../types';
 import { MIRROR_CONTAINER_TOGGLE_CONFIG } from '../../constants';
 import type { ToolbarButtonManager } from '../utils/buttonUtils';
+import { observerManager } from '../utils/observerManager';
 
 export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlugin {
   private state: MirrorContainerToggleState = {
     isHidden: false,
     retryCount: 0,
-    observer: null,
     isInitialized: false
   };
+
+  private updateTimer: number | null = null;
+  private observerId: string = 'mirrorContainerToggle';
 
   private config = MIRROR_CONTAINER_TOGGLE_CONFIG;
   private buttonEl: HTMLButtonElement | null = null;
@@ -38,7 +42,12 @@ export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlu
       this.applyHideStyle();
     }
     
-    this.setupObserver();
+    // 使用共享观察者而不是创建新的观察者
+    observerManager.register(
+      this.observerId,
+      this.onMutations.bind(this),
+      10 // 优先级
+    );
 
     this.state.isInitialized = true;
     console.log('✅ W95 镜像容器切换模块已初始化');
@@ -53,10 +62,13 @@ export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlu
       this.buttonEl = null;
     }
 
-    // 断开观察者
-    if (this.state.observer) {
-      this.state.observer.disconnect();
-      this.state.observer = null;
+    // 注销共享观察者回调
+    observerManager.unregister(this.observerId);
+
+    // 清除更新定时器
+    if (this.updateTimer !== null) {
+      clearTimeout(this.updateTimer);
+      this.updateTimer = null;
     }
 
     // 移除样式
@@ -161,6 +173,7 @@ export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlu
 
   /**
    * 创建按钮
+   * 优化版本，添加防抖逻辑
    */
   private createButton(): void {
     // 移除旧按钮
@@ -184,7 +197,21 @@ export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlu
     button.style.justifyContent = 'center';
     button.style.transition = 'all 0.2s ease';
 
-    button.addEventListener('click', () => this.toggleState());
+    // 添加点击事件（使用防抖逻辑）
+    let clickTimeout: number | null = null;
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      if (clickTimeout !== null) {
+        clearTimeout(clickTimeout);
+      }
+      
+      clickTimeout = window.setTimeout(() => {
+        this.toggleState();
+        clickTimeout = null;
+      }, 100);
+    });
 
     // 使用按钮管理器注册按钮
     if (this.buttonManager) {
@@ -273,10 +300,16 @@ export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlu
   }
 
   /**
-   * 设置观察者
+   * 处理 DOM 变化
+   * 由共享观察者调用
    */
-  private setupObserver(): void {
-    this.state.observer = new MutationObserver((mutations) => {
+  public onMutations(mutations: MutationRecord[]): void {
+    // 使用节流逻辑处理 DOM 变化
+    if (this.updateTimer !== null) {
+      return; // 如果已经有一个更新计划，不再重复安排
+    }
+    
+    this.updateTimer = window.setTimeout(() => {
       const button = document.getElementById(this.config.buttonId);
       const activePanel = document.querySelector(this.config.targetPanelSelector);
       
@@ -290,14 +323,8 @@ export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlu
         // 如果没有激活面板但按钮存在，移除按钮
         button.remove();
       }
-    });
-
-    // 监视整个文档的变化
-    this.state.observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class']
-    });
+      
+      this.updateTimer = null;
+    }, 150); // 150ms 的节流延迟
   }
 }

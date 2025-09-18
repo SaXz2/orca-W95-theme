@@ -180,7 +180,6 @@ export interface QueryBlockHighlightTogglePlugin {
 export interface MirrorContainerToggleState {
   isHidden: boolean;
   retryCount: number;
-  observer: MutationObserver | null;
   isInitialized: boolean;
 }
 
@@ -250,7 +249,6 @@ export interface ListBreadcrumbTogglePlugin {
 export interface CardViewMinimalToggleState {
   isMinimal: boolean;
   retryCount: number;
-  observer: MutationObserver | null;
   isInitialized: boolean;
 }
 

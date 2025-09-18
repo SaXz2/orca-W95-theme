@@ -143,6 +143,9 @@ export {
   type ObserverConfig
 } from './utils/observerUtils';
 
+// 共享观察者管理器
+export { observerManager } from './utils/observerManager';
+
 // 本地化工具函数
 export { setupL10N, t } from './utils/l10n';
 
@@ -195,6 +198,7 @@ export class PluginManager {
   private pluginInstances: Map<string, any> = new Map();
   private buttonManager: ToolbarButtonManager | null = null;
   private pluginName: string = '';
+  private performanceMetrics: Map<string, { initTime: number }> = new Map();
 
   constructor(buttonManager?: ToolbarButtonManager, pluginName?: string) {
     this.buttonManager = buttonManager || null;
@@ -204,7 +208,7 @@ export class PluginManager {
   /**
    * 注册插件
    */
-  register<T extends { initialize?: () => void | Promise<void>; destroy?: () => void }>(
+  register<T extends { initialize?: () => void | Promise<void>; destroy?: () => void; onMutations?: (mutations: MutationRecord[]) => void }>(
     name: string, 
     pluginClass: new (buttonManager?: ToolbarButtonManager, ...args: any[]) => T, 
     priority?: number
@@ -213,6 +217,9 @@ export class PluginManager {
       return this.pluginInstances.get(name);
     }
 
+    // 记录性能指标开始时间
+    const startTime = performance.now();
+    
     // 向所有插件传递pluginName以支持持久化
     const instance: T = new pluginClass(this.buttonManager || undefined, this.pluginName);
     
@@ -221,13 +228,22 @@ export class PluginManager {
     
     // 自动初始化插件（支持异步）
     if (instance && typeof instance.initialize === 'function') {
-      const result = instance.initialize();
-      if (result instanceof Promise) {
-        result.catch(error => {
-          console.error(`插件 ${name} 初始化失败:`, error);
-        });
+      try {
+        const result = instance.initialize();
+        if (result instanceof Promise) {
+          result.catch(error => {
+            console.error(`插件 ${name} 初始化失败:`, error);
+          });
+        }
+      } catch (error) {
+        console.error(`插件 ${name} 初始化出错:`, error);
       }
     }
+
+    // 记录性能指标
+    const endTime = performance.now();
+    this.performanceMetrics.set(name, { initTime: endTime - startTime });
+    console.log(`插件 ${name} 初始化耗时: ${(endTime - startTime).toFixed(2)}ms`);
 
     return instance;
   }
@@ -238,11 +254,16 @@ export class PluginManager {
   unloadAll(): void {
     this.pluginInstances.forEach((instance, name) => {
       if (instance && typeof instance.destroy === 'function') {
-        instance.destroy();
+        try {
+          instance.destroy();
+        } catch (error) {
+          console.error(`插件 ${name} 卸载失败:`, error);
+        }
       }
     });
     this.pluginInstances.clear();
     this.plugins.clear();
+    this.performanceMetrics.clear();
   }
 
   /**
@@ -257,5 +278,28 @@ export class PluginManager {
    */
   hasPlugin(name: string): boolean {
     return this.pluginInstances.has(name);
+  }
+
+  /**
+   * 通知所有插件 DOM 变化
+   * 用于共享观察者模式
+   */
+  notifyAllPlugins(mutations: MutationRecord[]): void {
+    this.pluginInstances.forEach((instance, name) => {
+      if (instance && typeof instance.onMutations === 'function') {
+        try {
+          instance.onMutations(mutations);
+        } catch (error) {
+          console.error(`插件 ${name} 处理 DOM 变化失败:`, error);
+        }
+      }
+    });
+  }
+
+  /**
+   * 获取性能指标
+   */
+  getPerformanceMetrics(): Record<string, { initTime: number }> {
+    return Object.fromEntries(this.performanceMetrics);
   }
 }

@@ -2,12 +2,14 @@
  * 卡片封面比例切换模块
  * - 遵循最小可行方案：持久化状态，按钮控制，通过CSS控制卡片封面比例
  * - 支持三种状态：11:16竖版、16:9横版、禁用比例控制
+ * - 支持自定义比例设置：右键点击按钮弹出设置窗口
  */
 
 import type { 
   CardCoverAspectRatioAPI, 
   CardCoverAspectRatioPlugin, 
-  CardCoverAspectRatioState 
+  CardCoverAspectRatioState,
+  AspectRatioState
 } from '../../types';
 import { CARD_COVER_ASPECT_RATIO_CONFIG } from '../../constants';
 import type { ToolbarButtonManager } from '../utils/buttonUtils';
@@ -17,7 +19,9 @@ export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRati
     currentState: 0,
     retryCount: 0,
     observer: null,
-    isInitialized: false
+    isInitialized: false,
+    customRatios: [],
+    settingsModalOpen: false
   };
 
   private config = CARD_COVER_ASPECT_RATIO_CONFIG;
@@ -32,6 +36,7 @@ export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRati
     if (this.state.isInitialized) return;
 
     this.initState();
+    this.loadCustomRatios(); // 加载自定义比例
     this.createButton();
     
     // 根据保存的状态应用功能
@@ -71,8 +76,449 @@ export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRati
       setState: (state: number) => this.setState(state),
       getState: () => this.state.currentState,
       getCurrentRatio: () => this.getCurrentRatio(),
+      openSettings: () => this.openSettingsModal(),
       destroy: () => this.destroy()
     };
+  }
+
+  /**
+   * 打开设置窗口
+   */
+  private openSettingsModal(): void {
+    if (this.state.settingsModalOpen) return;
+    
+    // 创建设置窗口
+    const modal = this.createSettingsModal();
+    document.body.appendChild(modal);
+    
+    this.state.settingsModalOpen = true;
+    
+    // 加载保存的自定义比例
+    this.loadCustomRatios();
+    this.renderCustomRatiosList();
+  }
+  
+  /**
+   * 创建设置窗口
+   */
+  private createSettingsModal(): HTMLElement {
+    // 创建模态窗口容器
+    const modal = document.createElement('div');
+    modal.id = 'w95-card-cover-ratio-settings-modal';
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    `;
+    
+    // 创建模态窗口内容
+    const modalContent = document.createElement('div');
+    modalContent.style.cssText = `
+      background-color: var(--orca-color-bg-1, #fff);
+      border-radius: 8px;
+      padding: 16px;
+      width: 320px;
+      max-width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    `;
+    
+    // 创建标题
+    const title = document.createElement('h3');
+    title.textContent = '卡片封面比例设置';
+    title.style.cssText = `
+      margin: 0 0 16px 0;
+      font-size: 18px;
+      color: var(--orca-color-text-0, #333);
+    `;
+    
+    // 创建说明文本
+    const description = document.createElement('p');
+    description.textContent = '添加自定义宽高比，格式为"宽 / 高"（例如：16 / 9）';
+    description.style.cssText = `
+      margin: 0 0 16px 0;
+      font-size: 14px;
+      color: var(--orca-color-text-2, #666);
+    `;
+    
+    // 创建输入区域 - 优化版布局
+    const inputGroup = document.createElement('div');
+    inputGroup.style.cssText = `
+      display: grid;
+      grid-template-columns: minmax(80px, 1fr) minmax(80px, 1fr) auto;
+      gap: 8px;
+      margin-bottom: 16px;
+      align-items: center;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    `;
+    
+    // 宽度输入框
+    const widthInput = document.createElement('input');
+    widthInput.type = 'number';
+    widthInput.min = '1';
+    widthInput.placeholder = '宽';
+    widthInput.id = 'w95-ratio-width-input';
+    widthInput.style.cssText = `
+      padding: 8px;
+      border: 1px solid var(--orca-color-border-1, #ddd);
+      border-radius: 4px;
+      font-size: 14px;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    `;
+    
+    // 高度输入框
+    const heightInput = document.createElement('input');
+    heightInput.type = 'number';
+    heightInput.min = '1';
+    heightInput.placeholder = '高';
+    heightInput.id = 'w95-ratio-height-input';
+    heightInput.style.cssText = `
+      padding: 8px;
+      border: 1px solid var(--orca-color-border-1, #ddd);
+      border-radius: 4px;
+      font-size: 14px;
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    `;
+    
+    // 添加按钮
+    const addButton = document.createElement('button');
+    addButton.textContent = '添加';
+    addButton.style.cssText = `
+      padding: 8px 16px;
+      background-color: var(--orca-color-primary, #165DFF);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      white-space: nowrap;
+    `;
+    
+    // 添加自定义比例的点击事件
+    addButton.addEventListener('click', () => {
+      const width = widthInput.value.trim();
+      const height = heightInput.value.trim();
+      
+      if (width && height && parseInt(width) > 0 && parseInt(height) > 0) {
+        this.addCustomRatio(parseInt(width), parseInt(height));
+        widthInput.value = '';
+        heightInput.value = '';
+      }
+    });
+    
+    // 组装输入区域
+    inputGroup.appendChild(widthInput);
+    inputGroup.appendChild(heightInput);
+    inputGroup.appendChild(addButton);
+    
+    // 添加比例说明
+    const ratioHint = document.createElement('div');
+    ratioHint.textContent = '输入宽度和高度值设置比例 (如: 16 和 9 表示 16:9)';
+    ratioHint.style.cssText = `
+      grid-column: 1 / -1;
+      font-size: 12px;
+      color: var(--orca-color-text-2, #666);
+      margin-top: -8px;
+      margin-bottom: 8px;
+    `;
+    inputGroup.appendChild(ratioHint);
+    
+    // 创建自定义比例列表容器
+    const listContainer = document.createElement('div');
+    listContainer.id = 'w95-custom-ratios-list';
+    listContainer.style.cssText = `
+      max-height: 200px;
+      overflow-y: auto;
+      border: 1px solid var(--orca-color-border-1, #ddd);
+      border-radius: 4px;
+      margin-bottom: 16px;
+      padding: 8px;
+    `;
+    
+    // 创建按钮组
+    const buttonGroup = document.createElement('div');
+    buttonGroup.style.cssText = `
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    `;
+    
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = '取消';
+    cancelButton.style.cssText = `
+      padding: 8px 16px;
+      background-color: var(--orca-color-bg-2, #f5f5f5);
+      color: var(--orca-color-text-1, #333);
+      border: 1px solid var(--orca-color-border-1, #ddd);
+      border-radius: 4px;
+      cursor: pointer;
+    `;
+    
+    const saveButton = document.createElement('button');
+    saveButton.textContent = '保存';
+    saveButton.style.cssText = `
+      padding: 8px 16px;
+      background-color: var(--orca-color-primary, #165DFF);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    `;
+    
+    // 添加取消按钮点击事件
+    cancelButton.addEventListener('click', () => {
+      this.closeSettingsModal();
+    });
+    
+    // 添加保存按钮点击事件
+    saveButton.addEventListener('click', () => {
+      this.saveCustomRatios();
+      this.closeSettingsModal();
+    });
+    
+    buttonGroup.appendChild(cancelButton);
+    buttonGroup.appendChild(saveButton);
+    
+    // 组装模态窗口
+    modalContent.appendChild(title);
+    modalContent.appendChild(description);
+    modalContent.appendChild(inputGroup);
+    modalContent.appendChild(listContainer);
+    modalContent.appendChild(buttonGroup);
+    
+    modal.appendChild(modalContent);
+    
+    // 点击模态窗口背景关闭窗口
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        this.closeSettingsModal();
+      }
+    });
+    
+    return modal;
+  }
+  
+  /**
+   * 关闭设置窗口
+   */
+  private closeSettingsModal(): void {
+    const modal = document.getElementById('w95-card-cover-ratio-settings-modal');
+    if (modal) {
+      modal.remove();
+    }
+    this.state.settingsModalOpen = false;
+  }
+  
+  /**
+   * 添加自定义比例
+   */
+  private addCustomRatio(width: number, height: number): void {
+    if (!this.state.customRatios) {
+      this.state.customRatios = [];
+    }
+    
+    // 创建新的比例对象
+    const newRatio: AspectRatioState = {
+      ratio: `${width} / ${height}`,
+      icon: width > height ? 'landscape' : 'portrait',
+      title: `自定义比例 ${width}:${height}`
+    };
+    
+    // 添加到自定义比例列表
+    this.state.customRatios.push(newRatio);
+    
+    // 更新列表显示
+    this.renderCustomRatiosList();
+  }
+  
+  /**
+   * 渲染自定义比例列表
+   */
+  private renderCustomRatiosList(): void {
+    const listContainer = document.getElementById('w95-custom-ratios-list');
+    if (!listContainer) return;
+    
+    // 清空列表
+    listContainer.innerHTML = '';
+    
+    // 如果没有自定义比例，显示提示信息
+    if (!this.state.customRatios || this.state.customRatios.length === 0) {
+      const emptyMessage = document.createElement('div');
+      emptyMessage.textContent = '暂无自定义比例';
+      emptyMessage.style.cssText = `
+        padding: 16px;
+        text-align: center;
+        color: var(--orca-color-text-3, #999);
+      `;
+      listContainer.appendChild(emptyMessage);
+      return;
+    }
+    
+    // 创建列表项
+    this.state.customRatios.forEach((ratio, index) => {
+      const item = document.createElement('div');
+      item.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px;
+        border-bottom: 1px solid var(--orca-color-border-1, #ddd);
+        &:last-child {
+          border-bottom: none;
+        }
+      `;
+      
+      // 比例信息
+      const ratioInfo = document.createElement('div');
+      ratioInfo.textContent = ratio.title;
+      
+      // 操作按钮组
+      const actions = document.createElement('div');
+      actions.style.cssText = `
+        display: flex;
+        gap: 8px;
+      `;
+      
+      // 应用按钮
+      const applyButton = document.createElement('button');
+      applyButton.textContent = '应用';
+      applyButton.style.cssText = `
+        padding: 4px 8px;
+        background-color: var(--orca-color-primary-light, rgba(22, 93, 255, 0.1));
+        color: var(--orca-color-primary, #165DFF);
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      `;
+      
+      // 删除按钮
+      const deleteButton = document.createElement('button');
+      deleteButton.textContent = '删除';
+      deleteButton.style.cssText = `
+        padding: 4px 8px;
+        background-color: var(--orca-color-danger-light, rgba(245, 63, 63, 0.1));
+        color: var(--orca-color-danger, #F53F3F);
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      `;
+      
+      // 添加应用按钮点击事件
+      applyButton.addEventListener('click', () => {
+        this.applyCustomRatio(index);
+      });
+      
+      // 添加删除按钮点击事件
+      deleteButton.addEventListener('click', () => {
+        this.deleteCustomRatio(index);
+      });
+      
+      actions.appendChild(applyButton);
+      actions.appendChild(deleteButton);
+      
+      item.appendChild(ratioInfo);
+      item.appendChild(actions);
+      
+      listContainer.appendChild(item);
+    });
+  }
+  
+  /**
+   * 应用自定义比例
+   */
+  private applyCustomRatio(index: number): void {
+    if (!this.state.customRatios || index >= this.state.customRatios.length) return;
+    
+    // 获取自定义比例
+    const customRatio = this.state.customRatios[index];
+    
+    // 应用自定义比例
+    let style = document.getElementById(this.config.styleId);
+    if (!style) {
+      style = document.createElement('style');
+      style.id = this.config.styleId;
+      document.head.appendChild(style);
+    }
+    
+    style.textContent = `
+      .orca-query-card-cover {
+        aspect-ratio: ${customRatio.ratio} !important;
+      }
+    `;
+    
+    // 更新按钮样式为激活状态
+    const button = document.getElementById(this.config.buttonId);
+    if (button) {
+      button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
+      button.style.opacity = '1';
+      const paths = button.querySelectorAll('svg path');
+      paths.forEach(path => {
+        path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)');
+      });
+      
+      // 更新按钮标题
+      button.title = customRatio.title;
+    }
+  }
+  
+  /**
+   * 删除自定义比例
+   */
+  private deleteCustomRatio(index: number): void {
+    if (!this.state.customRatios || index >= this.state.customRatios.length) return;
+    
+    // 从列表中删除
+    this.state.customRatios.splice(index, 1);
+    
+    // 更新列表显示
+    this.renderCustomRatiosList();
+  }
+  
+  /**
+   * 加载保存的自定义比例
+   */
+  private loadCustomRatios(): void {
+    try {
+      const stored = localStorage.getItem(`${this.config.storageKey}_custom`);
+      if (stored) {
+        this.state.customRatios = JSON.parse(stored);
+      } else {
+        this.state.customRatios = [];
+      }
+    } catch (e) {
+      console.error('加载自定义比例失败:', e);
+      this.state.customRatios = [];
+    }
+  }
+  
+  /**
+   * 保存自定义比例到本地存储
+   */
+  private saveCustomRatios(): void {
+    try {
+      localStorage.setItem(
+        `${this.config.storageKey}_custom`, 
+        JSON.stringify(this.state.customRatios || [])
+      );
+    } catch (e) {
+      console.error('保存自定义比例失败:', e);
+    }
   }
 
   /**
@@ -189,7 +635,15 @@ export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRati
     button.style.justifyContent = 'center';
     button.style.transition = 'all 0.2s ease';
 
+    // 左键点击切换状态
     button.addEventListener('click', () => this.toggleState());
+    
+    // 右键点击打开设置窗口
+    button.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.openSettingsModal();
+    });
 
     // 使用按钮管理器注册按钮
     if (this.buttonManager) {

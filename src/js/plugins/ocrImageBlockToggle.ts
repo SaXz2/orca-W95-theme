@@ -144,12 +144,23 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
 
   /**
    * 检查是否为OCR图片块
+   * 新的实现方式：检查是否包含特定的图片图标元素，并且位于特定的搜索模态框内
    */
   private isOcrImageBlock(block: Element): boolean {
-    const photoEl = block.querySelector(this.config.photoClassSelector);
-    if (!photoEl) return false;
-    const pseudoContent = window.getComputedStyle(photoEl, ':before').content;
-    return pseudoContent === '"\\e84a"';
+    // 检查块是否为搜索模态框中的块项目
+    if (!block.classList.contains('orca-menu-item') || !block.classList.contains('orca-search-modal-block-item')) {
+      return false;
+    }
+    
+    // 检查是否位于特定的搜索模态框内
+    const searchModal = block.closest('.orca-menu.orca-search-modal.orca-search-modal-with-preview');
+    if (!searchModal) {
+      return false;
+    }
+    
+    // 检查是否包含图片图标元素
+    const photoIconEl = block.querySelector('i.ti.ti-photo.orca-search-modal-result-icon');
+    return !!photoIconEl;
   }
 
   /**

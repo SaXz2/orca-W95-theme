@@ -285,6 +285,8 @@ export interface CardCoverAspectRatioState {
   retryCount: number;
   observer: MutationObserver | null;
   isInitialized: boolean;
+  customRatios: AspectRatioState[];
+  settingsModalOpen: boolean;
 }
 
 export interface CardCoverAspectRatioAPI {
@@ -292,6 +294,7 @@ export interface CardCoverAspectRatioAPI {
   setState: (state: number) => void;
   getState: () => number;
   getCurrentRatio: () => string;
+  openSettings: () => void;
   destroy: () => void;
 }
 

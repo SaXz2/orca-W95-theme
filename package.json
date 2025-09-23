@@ -1,6 +1,6 @@
 {
   "name": "orca-W95-theme",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "type": "module",
   "scripts": {
     "dev": "vite",

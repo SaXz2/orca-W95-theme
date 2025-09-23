@@ -18,13 +18,13 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
     currentState: 0,
     retryCount: 0,
     mainObserver: null,
-    originalDisplayMap: new Map(),
     isInitialized: false
   };
 
   private config = OCR_IMAGE_BLOCK_TOGGLE_CONFIG;
   private updateTimer: number | null = null;
   private observerId: string = 'ocrImageBlockToggle';
+  private styleElement: HTMLStyleElement | null = null;
 
   constructor() {
     // 这个插件不需要按钮管理器，因为它添加按钮到搜索模态框而不是工具栏
@@ -35,6 +35,9 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
 
     this.initState();
     this.createButton();
+    
+    // 根据保存的状态立即应用样式（避免闪烁）
+    this.applyDisplayStyle();
     
     // 使用共享观察者而不是创建新的观察者
     observerManager.register(
@@ -65,8 +68,8 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
       this.updateTimer = null;
     }
 
-    // 恢复所有块的原始显示状态
-    this.restoreAllBlocksDisplay();
+    // 移除样式元素
+    this.removeDisplayStyle();
 
     this.state.isInitialized = false;
     console.log('✅ W95 隐藏OCR图片块模块已销毁');
@@ -178,67 +181,58 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
   }
 
   /**
-   * 更新块的显示状态
+   * 应用显示样式（使用CSS方式）
    */
-  public updateBlocksDisplay(): void {
-    // 使用性能优化的方式处理 DOM
-    const blocks = document.querySelectorAll(this.config.targetBlockSelector);
-    
-    // 首先保存原始显示状态（只处理新的块）
-    blocks.forEach(block => {
-      if (!this.state.originalDisplayMap.has(block)) {
-        const currentDisplay = (block as HTMLElement).style.display || window.getComputedStyle(block).display;
-        this.state.originalDisplayMap.set(block, currentDisplay);
-      }
-    });
+  private applyDisplayStyle(): void {
+    if (!this.styleElement) {
+      this.styleElement = document.createElement('style');
+      this.styleElement.id = 'w95-ocr-image-block-toggle-style';
+      document.head.appendChild(this.styleElement);
+    }
 
-    // 批量处理所有块，减少重排和重绘
-    const ocrBlocks: Element[] = [];
-    const nonOcrBlocks: Element[] = [];
+    let styleContent = '';
     
-    // 先分类，避免多次遍历
-    blocks.forEach(block => {
-      if (this.isOcrImageBlock(block)) {
-        ocrBlocks.push(block);
-      } else {
-        nonOcrBlocks.push(block);
-      }
-    });
-    
-    // 根据当前状态批量设置显示属性
     switch(this.state.currentState) {
       case 1: // 隐藏 OCR 图片块
-        ocrBlocks.forEach(block => {
-          (block as HTMLElement).style.display = 'none';
-        });
-        nonOcrBlocks.forEach(block => {
-          (block as HTMLElement).style.display = this.state.originalDisplayMap.get(block) || '';
-        });
+        styleContent = `
+          .orca-query-list-block:has(.orca-block.orca-container[data-type="image"]:has(.orca-block-image-orc-icon)) {
+            display: none !important;
+          }
+        `;
         break;
       case 2: // 仅显示 OCR 图片块
-        ocrBlocks.forEach(block => {
-          (block as HTMLElement).style.display = this.state.originalDisplayMap.get(block) || '';
-        });
-        nonOcrBlocks.forEach(block => {
-          (block as HTMLElement).style.display = 'none';
-        });
+        styleContent = `
+          .orca-query-list-block:not(:has(.orca-block.orca-container[data-type="image"]:has(.orca-block-image-orc-icon))) {
+            display: none !important;
+          }
+        `;
         break;
       case 0: // 全部显示
-        blocks.forEach(block => {
-          (block as HTMLElement).style.display = this.state.originalDisplayMap.get(block) || '';
-        });
+        // 不添加任何样式，让所有块正常显示
         break;
+    }
+    
+    this.styleElement.textContent = styleContent;
+  }
+
+  /**
+   * 移除显示样式
+   */
+  private removeDisplayStyle(): void {
+    if (this.styleElement) {
+      this.styleElement.remove();
+      this.styleElement = null;
     }
   }
 
   /**
-   * 恢复所有块的原始显示状态
+   * 更新块的显示状态（保持向后兼容）
    */
-  private restoreAllBlocksDisplay(): void {
-    this.state.originalDisplayMap.forEach((originalDisplay, block) => {
-      (block as HTMLElement).style.display = originalDisplay;
-    });
+  public updateBlocksDisplay(): void {
+    // 使用CSS样式方式
+    this.applyDisplayStyle();
   }
+
 
   /**
    * 切换三重状态

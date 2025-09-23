@@ -18,6 +18,7 @@ export class QueryBlockRefTogglePluginImpl implements QueryBlockRefTogglePlugin 
   private config = QUERY_BLOCK_REF_TOGGLE_CONFIG;
   private buttonEl: HTMLButtonElement | null = null;
   private buttonManager: ToolbarButtonManager | null = null;
+  private styleElement: HTMLStyleElement | null = null;
 
   constructor(buttonManager?: ToolbarButtonManager) {
     this.buttonManager = buttonManager || null;
@@ -26,14 +27,15 @@ export class QueryBlockRefTogglePluginImpl implements QueryBlockRefTogglePlugin 
   public initialize(): void {
     if (this.state.isInitialized) return;
 
+    // 先初始化状态
     this.initState();
-    this.createButton();
     
-    // 根据保存的状态应用功能
+    // 根据保存的状态立即应用样式（避免闪烁）
     if (this.state.isHidden) {
-      this.hideMatchingBlocks();
+      this.applyHideStyle();
     }
     
+    this.createButton();
     this.setupObserver();
 
     this.state.isInitialized = true;
@@ -55,8 +57,8 @@ export class QueryBlockRefTogglePluginImpl implements QueryBlockRefTogglePlugin 
       this.state.observer = null;
     }
 
-    // 显示所有隐藏的块
-    this.showHiddenBlocks();
+    // 移除样式元素
+    this.removeHideStyle();
 
     this.state.isInitialized = false;
     console.log('✅ W95 仅块引用隐藏切换模块已销毁');
@@ -129,45 +131,48 @@ export class QueryBlockRefTogglePluginImpl implements QueryBlockRefTogglePlugin 
   }
 
   /**
-   * 隐藏匹配的块
+   * 应用隐藏样式
    */
-  private hideMatchingBlocks(): void {
-    document.querySelectorAll('.orca-query-list-block').forEach(block => {
-      const reprMain = block.querySelector('.orca-repr-main');
-      const isCollapsed = reprMain && reprMain.classList.contains('orca-repr-main-collapsed');
-      
-      if (isCollapsed) return;
-      
-      const childrenContainer = block.querySelector('.orca-repr-children');
-      if (childrenContainer) {
-        const hasVisibleChildren = Array.from(childrenContainer.childNodes).some(node => 
-          node.nodeType === 1 || (node.nodeType === 3 && node.textContent?.trim() !== '')
-        );
-        if (hasVisibleChildren) return;
+  private applyHideStyle(): void {
+    if (!this.styleElement) {
+      this.styleElement = document.createElement('style');
+      this.styleElement.id = 'w95-query-block-ref-toggle-style';
+      document.head.appendChild(this.styleElement);
+    }
+    
+    this.styleElement.textContent = `
+      .orca-query-list-block:not(:has(.orca-repr-main.orca-repr-main-collapsed)):not(:has(.orca-repr-children > *:not(:empty))):has(.orca-repr-main-content.orca-repr-text-content > .orca-none-selectable:first-child + .orca-inline[data-type="r"] + .orca-none-selectable:last-child) {
+        display: none !important;
       }
-      
-      const container = block.querySelector('.orca-repr-main-content.orca-repr-text-content');
-      if (!container) return;
-      
-      const children = container.children;
-      if (children.length !== 3) return;
-      
-      if (children[0].classList.contains('orca-none-selectable') &&
-          children[1].classList.contains('orca-inline') && 
-          (children[1] as HTMLElement).dataset.type === 'r' &&
-          children[2].classList.contains('orca-none-selectable')) {
-        (block as HTMLElement).style.display = 'none';
-      }
-    });
+    `;
   }
 
   /**
-   * 显示所有隐藏的块
+   * 移除隐藏样式
+   */
+  private removeHideStyle(): void {
+    if (this.styleElement) {
+      this.styleElement.remove();
+      this.styleElement = null;
+    }
+  }
+
+
+  /**
+   * 隐藏匹配的块（使用CSS样式）
+   */
+  private hideMatchingBlocks(): void {
+    // 直接应用CSS样式，让浏览器自动处理匹配
+    this.applyHideStyle();
+  }
+
+
+  /**
+   * 显示所有隐藏的块（移除CSS样式）
    */
   private showHiddenBlocks(): void {
-    document.querySelectorAll('.orca-query-list-block').forEach(block => {
-      (block as HTMLElement).style.display = '';
-    });
+    // 移除CSS样式，让所有块正常显示
+    this.removeHideStyle();
   }
 
   /**
@@ -281,6 +286,36 @@ export class QueryBlockRefTogglePluginImpl implements QueryBlockRefTogglePlugin 
       } else if (button) {
         // 如果没有激活面板但按钮存在，移除按钮
         button.remove();
+      }
+
+      // 检查是否有查询块相关的变化
+      let needsUpdate = false;
+      mutations.forEach(mutation => {
+        if (mutation.type === 'childList') {
+          // 检查新增的节点中是否有查询块
+          mutation.addedNodes.forEach(node => {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+              const element = node as Element;
+              if (element.classList?.contains('orca-query-list-block') || 
+                  element.querySelector?.('.orca-query-list-block')) {
+                needsUpdate = true;
+              }
+            }
+          });
+        } else if (mutation.type === 'attributes') {
+          // 检查折叠状态或子内容的变化
+          const target = mutation.target as Element;
+          if (target.classList?.contains('orca-repr-main') || 
+              target.classList?.contains('orca-repr-children') ||
+              target.closest?.('.orca-query-list-block')) {
+            needsUpdate = true;
+          }
+        }
+      });
+
+      // 如果当前状态是隐藏且有相关变化，重新应用隐藏效果
+      if (needsUpdate && this.state.isHidden) {
+        this.applyHideStyle();
       }
     });
 

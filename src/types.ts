@@ -418,7 +418,6 @@ export interface OcrImageBlockToggleState {
   currentState: number;
   retryCount: number;
   mainObserver: MutationObserver | null;
-  originalDisplayMap: Map<Element, string>;
   isInitialized: boolean;
 }
 

@@ -34,6 +34,15 @@ export type {
   PropsToggleConfig 
 } from '../types';
 
+// 特定标签查询隐藏切换插件
+export { QueryTagTogglePluginImpl } from './plugins/queryTagToggle';
+export type { 
+  QueryTagTogglePlugin, 
+  QueryTagToggleAPI, 
+  QueryTagToggleState, 
+  QueryTagToggleConfig 
+} from '../types';
+
 // 仅块引用隐藏切换插件
 export { QueryBlockRefTogglePluginImpl } from './plugins/queryBlockRefToggle';
 export type { 
@@ -163,6 +172,7 @@ export {
   HEADING_NUMBER_TOGGLE_CONFIG,
   DEFAULT_HEADING_NUMBER_STATE,
   PROPS_TOGGLE_CONFIG,
+  QUERY_TAG_TOGGLE_CONFIG,
   QUERY_BLOCK_REF_TOGGLE_CONFIG,
   QUERY_BLOCK_HIGHLIGHT_TOGGLE_CONFIG,
   MIRROR_CONTAINER_TOGGLE_CONFIG,

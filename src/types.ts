@@ -447,3 +447,38 @@ export interface OcrImageBlockTogglePlugin {
   destroy: () => void;
   getAPI: () => OcrImageBlockToggleAPI;
 }
+
+// ========================================
+//   特定标签查询隐藏相关类型定义
+// ========================================
+
+export interface QueryTagToggleState {
+  isHidden: boolean;
+  retryCount: number;
+  observer: MutationObserver | null;
+  isInitialized: boolean;
+}
+
+export interface QueryTagToggleAPI {
+  toggle: () => void;
+  show: () => void;
+  hide: () => void;
+  getState: () => boolean;
+  destroy: () => void;
+}
+
+export interface QueryTagToggleConfig {
+  buttonId: string;
+  toolbarSelector: string;
+  targetPanelSelector: string;
+  retryInterval: number;
+  maxRetries: number;
+  storageKey: string;
+  settingsKey: string;
+}
+
+export interface QueryTagTogglePlugin {
+  initialize: () => void;
+  destroy: () => void;
+  getAPI: () => QueryTagToggleAPI;
+}

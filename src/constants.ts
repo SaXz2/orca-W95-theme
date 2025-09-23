@@ -285,3 +285,14 @@ export const OCR_IMAGE_BLOCK_TOGGLE_CONFIG = {
     2: '当前：仅显示OCR图片块，点击关闭'
   }
 } as const;
+
+// 特定标签查询隐藏切换配置
+export const QUERY_TAG_TOGGLE_CONFIG = {
+  buttonId: 'w95-query-tag-toggle-btn',
+  toolbarSelector: TOOLBAR_BUTTON_CONFIG.toolbarSelector,
+  targetPanelSelector: TOOLBAR_BUTTON_CONFIG.targetPanelSelector,
+  retryInterval: TOOLBAR_BUTTON_CONFIG.retryInterval,
+  maxRetries: TOOLBAR_BUTTON_CONFIG.maxRetries,
+  storageKey: 'w95.queryTagToggleState',
+  settingsKey: 'w95.queryTagToggleSettings'
+} as const;

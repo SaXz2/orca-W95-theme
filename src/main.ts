@@ -6,6 +6,7 @@ import {
   QueryViewTogglePluginImpl,
   HeadingNumberTogglePluginImpl,
   PropsTogglePluginImpl,
+  QueryTagTogglePluginImpl,
   QueryBlockRefTogglePluginImpl,
   QueryBlockHighlightTogglePluginImpl,
   MirrorContainerTogglePluginImpl,
@@ -50,15 +51,16 @@ export async function load(_name: string) {
   pluginManager.register('queryViewToggle', QueryViewTogglePluginImpl, 1);
   pluginManager.register('headingNumberToggle', HeadingNumberTogglePluginImpl, 2);
   pluginManager.register('propsToggle', PropsTogglePluginImpl, 3);
-  pluginManager.register('queryBlockRefToggle', QueryBlockRefTogglePluginImpl, 4);
-  pluginManager.register('queryBlockHighlightToggle', QueryBlockHighlightTogglePluginImpl, 5);
-  pluginManager.register('mirrorContainerToggle', MirrorContainerTogglePluginImpl, 6);
-  pluginManager.register('listBreadcrumbToggle', ListBreadcrumbTogglePluginImpl, 7);
-  pluginManager.register('cardViewMinimalToggle', CardViewMinimalTogglePluginImpl, 8);
-  pluginManager.register('cardCoverAspectRatioToggle', CardCoverAspectRatioTogglePluginImpl, 9);
-  pluginManager.register('queryListBlockCreationTime', QueryListBlockCreationTimePluginImpl, 10);
-  pluginManager.register('theme2Toggle', Theme2TogglePluginImpl, 11);
-  pluginManager.register('ocrImageBlockToggle', OcrImageBlockTogglePluginImpl, 12);
+  pluginManager.register('queryTagToggle', QueryTagTogglePluginImpl, 4);
+  pluginManager.register('queryBlockRefToggle', QueryBlockRefTogglePluginImpl, 6);
+  pluginManager.register('queryBlockHighlightToggle', QueryBlockHighlightTogglePluginImpl, 7);
+  pluginManager.register('mirrorContainerToggle', MirrorContainerTogglePluginImpl, 8);
+  pluginManager.register('listBreadcrumbToggle', ListBreadcrumbTogglePluginImpl, 9);
+  pluginManager.register('cardViewMinimalToggle', CardViewMinimalTogglePluginImpl, 10);
+  pluginManager.register('cardCoverAspectRatioToggle', CardCoverAspectRatioTogglePluginImpl, 11);
+  pluginManager.register('queryListBlockCreationTime', QueryListBlockCreationTimePluginImpl, 12);
+  pluginManager.register('theme2Toggle', Theme2TogglePluginImpl, 13);
+  pluginManager.register('ocrImageBlockToggle', OcrImageBlockTogglePluginImpl, 14);
 
   // 初始化按钮管理器，开始添加按钮
   buttonManager.initialize();

@@ -141,7 +141,7 @@ export class QueryTagTogglePluginImpl implements QueryTagTogglePlugin {
     }
     
     this.styleElement.textContent = `
-      .orca-query-list-block:has(.orca-tag[data-name="空"]) {
+      .orca-query-list-block:not(:has(.orca-repr-main.orca-repr-main-collapsed)):not(:has(.orca-repr-children > *:not(:empty))):has(.orca-tag[data-name="空"]) {
         display: none !important;
       }
     `;
@@ -301,10 +301,9 @@ export class QueryTagTogglePluginImpl implements QueryTagTogglePlugin {
             }
           });
         } else if (mutation.type === 'attributes') {
-          // 检查折叠状态或子内容的变化
+          // 检查折叠状态的变化
           const target = mutation.target as Element;
           if (target.classList?.contains('orca-repr-main') || 
-              target.classList?.contains('orca-repr-children') ||
               target.closest?.('.orca-query-list-block')) {
             needsUpdate = true;
           }

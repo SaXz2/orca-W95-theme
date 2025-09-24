@@ -54,10 +54,18 @@ function applyThemeStylesInternal() {
       link.onload = () => {
         console.log(`Plugin '${currentPluginName}': CSS loaded successfully.`);
         isThemeCurrentlyActive = true;
+        // 通知所有主题切换插件更新按钮状态
+        window.dispatchEvent(new CustomEvent('theme2StateChanged', { 
+          detail: { isActive: true } 
+        }));
       };
       link.onerror = () => {
         console.error(`Plugin '${currentPluginName}': Failed to load CSS from ${absoluteCssPath}.`);
         isThemeCurrentlyActive = false;
+        // 通知所有主题切换插件更新按钮状态
+        window.dispatchEvent(new CustomEvent('theme2StateChanged', { 
+          detail: { isActive: false } 
+        }));
       };
 
       head.appendChild(link);
@@ -86,14 +94,26 @@ function removeThemeStylesInternal() {
       themeLinkElement.remove();
       isThemeCurrentlyActive = false;
       console.log(`Plugin '${currentPluginName}': Custom CSS unloaded by removing element with ID '${linkId}'.`);
+      // 通知所有主题切换插件更新按钮状态
+      window.dispatchEvent(new CustomEvent('theme2StateChanged', { 
+        detail: { isActive: false } 
+      }));
     } else {
       // 即使没找到元素，也应该将状态视为false，因为我们期望它被移除
       isThemeCurrentlyActive = false;
       console.warn(`Plugin '${currentPluginName}': No custom CSS link found to unload (expected ID: '${linkId}'). Current state set to inactive.`);
+      // 通知所有主题切换插件更新按钮状态
+      window.dispatchEvent(new CustomEvent('theme2StateChanged', { 
+        detail: { isActive: false } 
+      }));
     }
   } catch (e) {
     console.error(`Plugin '${currentPluginName}': Error removing theme styles.`, e);
     isThemeCurrentlyActive = false; // 出错时，也认为主题未激活
+    // 通知所有主题切换插件更新按钮状态
+    window.dispatchEvent(new CustomEvent('theme2StateChanged', { 
+      detail: { isActive: false } 
+    }));
   }
 }
 
@@ -110,6 +130,11 @@ function toggleThemeCommandExecute() {
     applyThemeStylesInternal();
   }
   console.log(`Theme active state AFTER toggle: ${isThemeCurrentlyActive}`);
+  
+  // 通知所有主题切换插件更新按钮状态
+  window.dispatchEvent(new CustomEvent('theme2StateChanged', { 
+    detail: { isActive: isThemeCurrentlyActive } 
+  }));
 }
 
 export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
@@ -125,6 +150,7 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
   private buttonManager: ToolbarButtonManager | null = null;
   private pluginName: string = '';
   private persistenceManager: PersistenceManager | null = null;
+  private stateChangeHandler: ((event: Event) => void) | null = null;
 
   constructor(buttonManager?: ToolbarButtonManager, pluginName?: string) {
     this.buttonManager = buttonManager || null;
@@ -175,17 +201,40 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
       console.error(`Plugin '${this.pluginName}': Error registering command '${themeToggleCommandId}'.`, e);
     }
 
+    // 根据保存的状态加载主题
+    await this.initState();
+    
     // 创建按钮
     this.createButton();
     
-    // 根据保存的状态加载主题
-    await this.initState();
+    // 如果状态为true，加载主题
     if (this.state.isThemeLoaded) {
       console.log('[Theme2Toggle] 检测到已保存的主题2状态，正在恢复...');
       applyThemeStylesInternal();
+      // 同步全局状态
+      isThemeCurrentlyActive = true;
+      // 等待CSS加载完成后再更新按钮状态
+      setTimeout(() => {
+        this.updateButtonStyle();
+      }, 100);
+    } else {
+      // 确保状态一致
+      isThemeCurrentlyActive = false;
     }
     
     this.setupObserver();
+    
+    // 监听主题状态变化事件
+    this.stateChangeHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      if (customEvent.detail && typeof customEvent.detail.isActive === 'boolean') {
+        this.state.isThemeLoaded = customEvent.detail.isActive;
+        this.updateButtonStyle();
+        // 自动保存状态
+        this.saveState();
+      }
+    };
+    window.addEventListener('theme2StateChanged', this.stateChangeHandler);
 
     this.state.isInitialized = true;
     console.log(`Theme active state after initial load: ${isThemeCurrentlyActive}`);
@@ -223,6 +272,12 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
     if (this.state.observer) {
       this.state.observer.disconnect();
       this.state.observer = null;
+    }
+
+    // 5. 移除事件监听器
+    if (this.stateChangeHandler) {
+      window.removeEventListener('theme2StateChanged', this.stateChangeHandler);
+      this.stateChangeHandler = null;
     }
 
     console.log(`Plugin '${currentPluginName}' UNLOADED. Theme state was: ${isThemeCurrentlyActive}`);
@@ -552,6 +607,8 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
    * 保存状态到Orca数据存储
    */
   private async saveState(): Promise<void> {
+    // 同步全局状态和实例状态
+    this.state.isThemeLoaded = isThemeCurrentlyActive;
     console.log(`[Theme2Toggle] 保存状态: ${this.state.isThemeLoaded}`);
     try {
       if (this.persistenceManager) {
@@ -592,11 +649,16 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
     button.style.justifyContent = 'center';
     button.style.transition = 'all 0.2s ease';
 
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
       // 直接调用全局命令函数
       toggleThemeCommandExecute();
-      // 更新按钮状态
-      this.updateButtonStyle();
+      // 延迟更新按钮状态和保存状态，确保状态已同步
+      setTimeout(async () => {
+        // 同步状态
+        this.state.isThemeLoaded = isThemeCurrentlyActive;
+        this.updateButtonStyle();
+        await this.saveState();
+      }, 50);
     });
 
     // 使用按钮管理器注册按钮
@@ -638,7 +700,10 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
    * 更新按钮图标
    */
   private updateButtonIcon(button: HTMLButtonElement): void {
-    if (isThemeCurrentlyActive) {
+    // 优先使用全局状态，如果全局状态未设置则使用实例状态
+    const isActive = isThemeCurrentlyActive !== undefined ? isThemeCurrentlyActive : this.state.isThemeLoaded;
+    
+    if (isActive) {
       // 主题2已加载 - 显示调色板图标（表示可以切换回默认主题）
       button.innerHTML = `
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -667,8 +732,11 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
     const button = document.getElementById(this.config.buttonId);
     if (!button) return;
 
+    // 优先使用全局状态，如果全局状态未设置则使用实例状态
+    const isActive = isThemeCurrentlyActive !== undefined ? isThemeCurrentlyActive : this.state.isThemeLoaded;
+    
     const svgElements = button.querySelectorAll('svg circle, svg line, svg path');
-    if (isThemeCurrentlyActive) {
+    if (isActive) {
       // 主题2已加载 - 激活状态
       button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
       svgElements.forEach(el => el.setAttribute('stroke', 'var(--orca-color-primary, #165DFF)'));

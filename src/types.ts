@@ -449,65 +449,6 @@ export interface OcrImageBlockTogglePlugin {
 }
 
 // ========================================
-//   GLSL滤镜切换相关类型定义
-// ========================================
-
-/**
- * GLSL滤镜切换配置接口
- */
-export interface GlslFilterToggleConfig {
-  buttonId: string;
-  storageKey: string;
-  styleId: string;
-  targetSelector: string;
-  filters: GlslFilter[];
-  retryInterval: number;
-  maxRetries: number;
-}
-
-/**
- * GLSL滤镜定义
- */
-export interface GlslFilter {
-  name: string;
-  icon: string;
-  cssFilter: string;
-  description: string;
-}
-
-/**
- * GLSL滤镜切换状态接口
- */
-export interface GlslFilterToggleState {
-  currentFilterIndex: number;
-  isEnabled: boolean;
-  retryCount: number;
-  isInitialized: boolean;
-}
-
-/**
- * GLSL滤镜切换 API 接口
- */
-export interface GlslFilterToggleAPI {
-  toggle: () => void;
-  nextFilter: () => void;
-  previousFilter: () => void;
-  setFilter: (index: number) => void;
-  getCurrentFilter: () => string;
-  isEnabled: () => boolean;
-  destroy: () => void;
-}
-
-/**
- * GLSL滤镜切换插件接口
- */
-export interface GlslFilterTogglePlugin {
-  initialize: () => Promise<void>;
-  destroy: () => void;
-  getAPI: () => GlslFilterToggleAPI;
-}
-
-// ========================================
 //   特定标签查询隐藏相关类型定义
 // ========================================
 

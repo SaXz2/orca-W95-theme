@@ -87,10 +87,14 @@ i.orca-panel-drag-handle.ti.ti-dots-vertical {
         background: #d9d9d95e;
         border-radius: 8px;
     }
-    /* 编辑器边框 */
+    /* 默认编辑器边框 */
     .orca-block-editor {
         border: 4px ridge #ffffff;  
-        box-shadow: inset 0 0 75px rgb(165 165 165 / 25%);  
+    }
+    
+    /* kef-round-shell 时关闭编辑器边框 */
+    body.windows.kef-round-shell .orca-block-editor {
+        border: 4px ridge transparent;  
     }
     
 }
@@ -122,10 +126,6 @@ i.orca-panel-drag-handle.ti.ti-dots-vertical {
         border-radius: 8px;
     }
 
-    /* 左侧按钮颜色 */
-    .orca-headbar-sidebar-tools .orca-button {
-        color: hsl(0, 0%, 100%);
-    }
 }
 
 /* 通用编辑器样式 */

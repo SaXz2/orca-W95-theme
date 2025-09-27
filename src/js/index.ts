@@ -118,21 +118,6 @@ export type {
   Theme2ToggleConfig
 } from '../types';
 
-// GLSL滤镜切换插件
-export { GlslFilterTogglePluginImpl } from './plugins/glslFilterToggle';
-export type { 
-  GlslFilterTogglePlugin, 
-  GlslFilterToggleAPI, 
-  GlslFilterToggleState, 
-  GlslFilterToggleConfig,
-  GlslFilter
-} from '../types';
-
-// GLSL工具类
-export { GlslRenderer } from './utils/glslRenderer';
-export { GlslFileManager } from './utils/glslFileManager';
-export type { GlslFileInfo } from './utils/glslFileManager';
-
 // 隐藏OCR图片块插件
 export { OcrImageBlockTogglePluginImpl } from './plugins/ocrImageBlockToggle';
 export type { 

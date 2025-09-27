@@ -296,11 +296,3 @@ export const QUERY_TAG_TOGGLE_CONFIG = {
   storageKey: 'w95.queryTagToggleState',
   settingsKey: 'w95.queryTagToggleSettings'
 } as const;
-
-// GLSL滤镜切换配置
-export const GLSL_FILTER_TOGGLE_CONFIG = {
-  buttonId: 'w95-glsl-filter-toggle-btn',
-  storageKey: 'w95.glslFilterToggleState',
-  retryInterval: TOOLBAR_BUTTON_CONFIG.retryInterval,
-  maxRetries: TOOLBAR_BUTTON_CONFIG.maxRetries
-} as const;

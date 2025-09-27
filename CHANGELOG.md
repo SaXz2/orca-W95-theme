@@ -1,5 +1,38 @@
 # Changelog
 
+## [1.0.7] - 2024-12-19
+
+### 🎨 Major Features
+- **真正的GLSL滤镜实现**: 使用WebGL渲染真正的GLSL着色器滤镜效果
+- **右键菜单选择**: 右键按钮可以选择具体的GLSL文件
+- **动态文件读取**: 自动读取glsl文件夹中的所有.glsl文件
+- **WebGL渲染器**: 高性能的WebGL渲染引擎，支持实时滤镜效果
+
+### 🔧 Technical Improvements
+- **WebGL渲染器**: 创建了完整的WebGL渲染管线
+- **GLSL文件管理器**: 智能文件加载和缓存系统
+- **右键菜单系统**: 自定义右键菜单选择滤镜文件
+- **渲染循环优化**: 高效的动画帧渲染循环
+
+### 📁 Files Added
+- `src/js/utils/glslRenderer.ts`: WebGL渲染器工具类
+- `src/js/utils/glslFileManager.ts`: GLSL文件管理器
+- `dist/glsl/`: 32个GLSL滤镜文件
+
+### 🚀 New Capabilities
+- **真实GLSL效果**: 不再是CSS模拟，而是真正的着色器效果
+- **文件选择**: 右键菜单列出所有可用的GLSL文件
+- **动态加载**: 运行时动态加载和编译GLSL文件
+- **高性能渲染**: WebGL硬件加速渲染
+
+### ✅ Verified
+- WebGL渲染器正常工作
+- GLSL文件管理器成功加载文件
+- 右键菜单功能完整
+- 滤镜效果实时渲染
+
+---
+
 ## [1.0.6] - 2024-12-19
 
 ### 🎨 New Features

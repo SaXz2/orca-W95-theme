@@ -128,6 +128,11 @@ export type {
   GlslFilter
 } from '../types';
 
+// GLSL工具类
+export { GlslRenderer } from './utils/glslRenderer';
+export { GlslFileManager } from './utils/glslFileManager';
+export type { GlslFileInfo } from './utils/glslFileManager';
+
 // 隐藏OCR图片块插件
 export { OcrImageBlockTogglePluginImpl } from './plugins/ocrImageBlockToggle';
 export type { 

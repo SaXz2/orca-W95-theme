@@ -12,8 +12,6 @@
 
 /* 通用编辑器样式 */
 
-
-
 /* 改变聚焦属性的样式 */
 .orca-repr-tag-props-group {
     padding: 0 1rem;
@@ -89,14 +87,10 @@ i.orca-panel-drag-handle.ti.ti-dots-vertical {
         background: #d9d9d95e;
         border-radius: 8px;
     }
-    /* 默认编辑器边框 */
+    /* 编辑器边框 */
     .orca-block-editor {
-        border: 4px ridge #ffffff !important;  
-    }
-    
-    /* kef-round-shell 时关闭编辑器边框 */
-    body.windows.kef-round-shell .orca-block-editor {
-        border: 4px ridge transparent !important;  
+        border: 4px ridge #ffffff;  
+        box-shadow: inset 0 0 75px rgb(165 165 165 / 25%);  
     }
     
 }
@@ -128,11 +122,10 @@ i.orca-panel-drag-handle.ti.ti-dots-vertical {
         border-radius: 8px;
     }
 
-    .orca-block-editor {
-        background: #0d1f5317;
+    /* 左侧按钮颜色 */
+    .orca-headbar-sidebar-tools .orca-button {
+        color: hsl(0, 0%, 100%);
     }
-
 }
 
 /* 通用编辑器样式 */
-

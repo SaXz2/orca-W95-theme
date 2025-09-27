@@ -16,6 +16,7 @@ import {
   QueryListBlockCreationTimePluginImpl,
   Theme2TogglePluginImpl,
   OcrImageBlockTogglePluginImpl,
+  GlslFilterTogglePluginImpl,
   ToolbarButtonManager,
   TOOLBAR_BUTTON_CONFIG,
   observerManager
@@ -61,6 +62,7 @@ export async function load(_name: string) {
   pluginManager.register('queryListBlockCreationTime', QueryListBlockCreationTimePluginImpl, 12);
   pluginManager.register('theme2Toggle', Theme2TogglePluginImpl, 13);
   pluginManager.register('ocrImageBlockToggle', OcrImageBlockTogglePluginImpl, 14);
+  pluginManager.register('glslFilterToggle', GlslFilterTogglePluginImpl, 15);
 
   // 初始化按钮管理器，开始添加按钮
   buttonManager.initialize();

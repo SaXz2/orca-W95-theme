@@ -1,12 +1,14 @@
 {
   "name": "orca-W95-theme",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "set NODE_ENV=production && tsc && vite build && node scripts/copy-css.cjs",
     "preview": "vite preview",
-    "release": "node scripts/release.cjs"
+    "release": "node scripts/release.cjs",
+    "download-glsl": "node scripts/download-glsl.cjs",
+    "build-with-glsl": "npm run download-glsl && npm run build"
   },
   "peerDependencies": {
     "react": "^18.2.0",

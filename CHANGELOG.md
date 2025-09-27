@@ -1,5 +1,37 @@
 # Changelog
 
+## [1.0.6] - 2024-12-19
+
+### 🎨 New Features
+- **新增GLSL滤镜切换功能**: 添加了 `glslFilterToggle` 插件，提供多种预设滤镜效果
+- **滤镜效果丰富**: 包含复古、黑白、暖色、冷色、高对比、模糊、锐化、霓虹、怀旧等10种滤镜
+- **自动下载GLSL文件**: 构建时自动从 [ghostty-shaders](https://github.com/hackr-sh/ghostty-shaders) 仓库下载32个GLSL文件
+- **状态持久化**: 滤镜选择状态自动保存，重启后保持用户设置
+
+### 🔧 Technical Improvements
+- **CSS滤镜实现**: 使用CSS滤镜属性实现视觉效果，性能优秀
+- **循环切换**: 按钮点击循环切换不同滤镜效果
+- **文件管理**: 自动下载和管理GLSL文件，为将来扩展做准备
+- **构建优化**: 新增 `download-glsl` 和 `build-with-glsl` 脚本命令
+
+### 📁 Files Added
+- `src/js/plugins/glslFilterToggle.ts`: GLSL滤镜切换插件
+- `scripts/download-glsl.cjs`: GLSL文件自动下载脚本
+- `dist/glsl/`: GLSL滤镜文件目录（32个文件）
+- `src/glsl/`: 源GLSL文件目录
+
+### 📝 Documentation
+- **更新README**: 添加GLSL滤镜功能说明
+- **完善类型定义**: 新增GLSL相关TypeScript类型
+
+### ✅ Verified
+- GLSL文件下载功能正常工作
+- 滤镜切换效果流畅
+- 状态持久化功能正常
+- 构建流程完整
+
+---
+
 ## [1.0.5] - 2024-12-19
 
 ### 🎨 New Features

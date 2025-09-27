@@ -156,13 +156,13 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
     }
     
     // 检查是否位于特定的搜索模态框内
-    const searchModal = block.closest('.orca-menu.orca-search-modal.orca-search-modal-with-preview');
+    const searchModal = block.closest('.orca-menu.orca-search-modal');
     if (!searchModal) {
       return false;
     }
     
-    // 检查是否包含图片图标元素
-    const photoIconEl = block.querySelector('i.ti.ti-photo.orca-search-modal-result-icon');
+    // 检查是否包含图片图标元素（使用更通用的选择器）
+    const photoIconEl = block.querySelector('.ti-photo');
     return !!photoIconEl;
   }
 
@@ -195,14 +195,14 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
     switch(this.state.currentState) {
       case 1: // 隐藏 OCR 图片块
         styleContent = `
-          .orca-query-list-block:has(.orca-block.orca-container[data-type="image"]:has(.orca-block-image-orc-icon)) {
+          .orca-menu-item.orca-search-modal-block-item:has(.ti-photo) {
             display: none !important;
           }
         `;
         break;
       case 2: // 仅显示 OCR 图片块
         styleContent = `
-          .orca-query-list-block:not(:has(.orca-block.orca-container[data-type="image"]:has(.orca-block-image-orc-icon))) {
+          .orca-menu-item.orca-search-modal-block-item:not(:has(.ti-photo)) {
             display: none !important;
           }
         `;

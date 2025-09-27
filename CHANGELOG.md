@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.0.5] - 2024-12-19
+
+### 🎨 New Features
+- **增强镜像容器切换功能**: 优化了 `mirrorContainerToggle` 插件的显示逻辑和用户体验
+- **改进主题样式**: 更新了按钮、编辑器和侧边栏的样式，提升整体视觉效果
+
+### 🔧 Technical Improvements
+- **CSS样式优化**: 
+  - 更新了 `buttons.css` 的样式定义
+  - 改进了 `editor.css` 的编辑器样式
+  - 优化了 `sidebar.css` 的侧边栏样式
+  - 增强了 `theme2.css` 的主题2样式
+- **插件功能增强**: 
+  - 改进了 `mirrorContainerToggle.ts` 的功能实现
+  - 优化了状态管理和用户交互
+
+### 📝 Documentation
+- **更新README**: 完善了项目说明文档，提供更详细的使用指南
+
+### ✅ Verified
+- 所有样式更新已测试通过
+- 插件功能正常工作
+- 文档内容准确完整
+
+---
+
 ## [1.0.4] - 2024-12-19
 
 ### 🐛 Bug Fixes

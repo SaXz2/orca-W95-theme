@@ -10,6 +10,11 @@
         font-weight: 600;
     }
 
+/* 适配圆角round-shell */
+    body.windows.kef-round-shell {
+        background-color: hsl(0 0% 95% / 1);
+    }
+
     /* 查询背景 */
     .orca-query-list-block {
         border-radius: 0 !important;

@@ -50,14 +50,6 @@
         border-radius: 0px;
     }
 
-    /* 左侧按钮组 */
-    .orca-headbar-sidebar-tools {
-        border-top: 1px solid #ffffff;
-        border-left: 1px solid #ffffff;
-        border-right: 1px solid #808080;
-        border-bottom: 1px solid #808080;
-        border-radius: 0px;
-    }
 }
 
 

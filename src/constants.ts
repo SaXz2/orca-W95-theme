@@ -296,3 +296,14 @@ export const QUERY_TAG_TOGGLE_CONFIG = {
   storageKey: 'w95.queryTagToggleState',
   settingsKey: 'w95.queryTagToggleSettings'
 } as const;
+
+// 悬浮工具栏切换配置
+export const POPUP_TOOLBAR_TOGGLE_CONFIG = {
+  buttonId: 'w95-popup-toolbar-toggle-btn',
+  styleId: 'w95-popup-toolbar-hide-style',
+  toolbarSelector: TOOLBAR_BUTTON_CONFIG.toolbarSelector,
+  targetPanelSelector: TOOLBAR_BUTTON_CONFIG.targetPanelSelector,
+  retryInterval: TOOLBAR_BUTTON_CONFIG.retryInterval,
+  maxRetries: TOOLBAR_BUTTON_CONFIG.maxRetries,
+  storageKey: 'w95.popupToolbarHidden'
+} as const;

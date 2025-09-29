@@ -16,6 +16,7 @@ import {
   QueryListBlockCreationTimePluginImpl,
   Theme2TogglePluginImpl,
   OcrImageBlockTogglePluginImpl,
+  PopupToolbarTogglePluginImpl,
   ToolbarButtonManager,
   TOOLBAR_BUTTON_CONFIG,
   observerManager
@@ -64,6 +65,7 @@ export async function load(_name: string) {
   pluginManager.register('queryListBlockCreationTime', QueryListBlockCreationTimePluginImpl, 12);
   pluginManager.register('theme2Toggle', Theme2TogglePluginImpl, 13);
   pluginManager.register('ocrImageBlockToggle', OcrImageBlockTogglePluginImpl, 14);
+  pluginManager.register('popupToolbarToggle', PopupToolbarTogglePluginImpl, 15);
 }
 
 export async function unload() {

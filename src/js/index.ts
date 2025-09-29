@@ -127,6 +127,15 @@ export type {
   OcrImageBlockToggleConfig
 } from '../types';
 
+// 悬浮工具栏切换插件
+export { PopupToolbarTogglePluginImpl } from './plugins/popupToolbarToggle';
+export type { 
+  PopupToolbarTogglePlugin, 
+  PopupToolbarToggleAPI, 
+  PopupToolbarToggleState, 
+  PopupToolbarToggleConfig
+} from '../types';
+
 // ========================================
 //   工具函数导出
 // ========================================
@@ -181,7 +190,8 @@ export {
   CARD_COVER_ASPECT_RATIO_CONFIG,
   QUERY_LIST_BLOCK_CREATION_TIME_CONFIG,
   THEME2_TOGGLE_CONFIG,
-  OCR_IMAGE_BLOCK_TOGGLE_CONFIG
+  OCR_IMAGE_BLOCK_TOGGLE_CONFIG,
+  POPUP_TOOLBAR_TOGGLE_CONFIG
 } from '../constants';
 
 // ========================================

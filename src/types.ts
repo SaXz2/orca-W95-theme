@@ -482,3 +482,37 @@ export interface QueryTagTogglePlugin {
   destroy: () => void;
   getAPI: () => QueryTagToggleAPI;
 }
+
+// ========================================
+//   悬浮工具栏切换相关类型定义
+// ========================================
+
+export interface PopupToolbarToggleState {
+  isHidden: boolean;
+  retryCount: number;
+  isInitialized: boolean;
+}
+
+export interface PopupToolbarToggleAPI {
+  toggle: () => void;
+  show: () => void;
+  hide: () => void;
+  getState: () => boolean;
+  destroy: () => void;
+}
+
+export interface PopupToolbarToggleConfig {
+  buttonId: string;
+  styleId: string;
+  toolbarSelector: string;
+  targetPanelSelector: string;
+  retryInterval: number;
+  maxRetries: number;
+  storageKey: string;
+}
+
+export interface PopupToolbarTogglePlugin {
+  initialize: () => void;
+  destroy: () => void;
+  getAPI: () => PopupToolbarToggleAPI;
+}

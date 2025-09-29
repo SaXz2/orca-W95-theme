@@ -47,6 +47,9 @@ export async function load(_name: string) {
   // 初始化插件管理器
   pluginManager = new PluginManager(buttonManager, pluginName);
 
+  // 先初始化按钮管理器，开始添加按钮
+  buttonManager.initialize();
+
   // 注册所有插件（按优先级顺序）
   pluginManager.register('queryViewToggle', QueryViewTogglePluginImpl, 1);
   pluginManager.register('headingNumberToggle', HeadingNumberTogglePluginImpl, 2);
@@ -61,9 +64,6 @@ export async function load(_name: string) {
   pluginManager.register('queryListBlockCreationTime', QueryListBlockCreationTimePluginImpl, 12);
   pluginManager.register('theme2Toggle', Theme2TogglePluginImpl, 13);
   pluginManager.register('ocrImageBlockToggle', OcrImageBlockTogglePluginImpl, 14);
-
-  // 初始化按钮管理器，开始添加按钮
-  buttonManager.initialize();
 }
 
 export async function unload() {

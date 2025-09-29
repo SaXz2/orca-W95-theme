@@ -42,7 +42,8 @@ export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRati
     // 根据保存的状态应用功能
     this.applyAspectRatioStyle();
     
-    this.setupObserver();
+    // 移除旧的观察者，使用按钮管理器统一管理
+    // this.setupObserver();
 
     this.state.isInitialized = true;
     console.log('✅ W95 卡片封面比例切换模块已初始化');
@@ -647,6 +648,7 @@ export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRati
 
     // 使用按钮管理器注册按钮
     if (this.buttonManager) {
+      this.buttonEl = button; // 保存按钮引用
       this.buttonManager.registerButton(
         this.config.buttonId,
         button,
@@ -655,32 +657,15 @@ export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRati
         () => {
           // 按钮添加到DOM后更新样式
           this.updateButtonStyle();
+        },
+        (newButton: HTMLButtonElement) => {
+          // 重新绑定点击事件
+          newButton.addEventListener('click', () => this.toggleState());
+          console.log('🔧 卡片封面比例切换插件：重新绑定点击事件');
         }
       );
     } else {
-      // 回退到原来的方式
-      const activePanel = document.querySelector(this.config.targetPanelSelector);
-      if (activePanel) {
-        const toolbar = activePanel.querySelector(this.config.toolbarSelector);
-        if (toolbar) {
-          toolbar.appendChild(button);
-          this.buttonEl = button;
-          this.state.retryCount = 0;
-          
-          // 恢复保存的状态
-          this.applyAspectRatioStyle();
-          this.updateButtonStyle();
-          return;
-        }
-      }
-
-      // 重试逻辑
-      if (this.state.retryCount < this.config.maxRetries) {
-        this.state.retryCount++;
-        setTimeout(() => this.createButton(), this.config.retryInterval);
-      } else {
-        console.warn('无法添加卡片封面比例切换按钮：超过最大重试次数');
-      }
+      console.warn('🔧 卡片封面比例切换插件：按钮管理器不可用');
     }
   }
 
@@ -723,62 +708,81 @@ export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRati
    * 更新按钮样式
    */
   private updateButtonStyle(): void {
-    const button = document.getElementById(this.config.buttonId);
-    if (!button) return;
+    // 更新所有同名按钮
+    const buttons = document.querySelectorAll(`#${this.config.buttonId}`);
+    buttons.forEach(button => {
+      if (!(button instanceof HTMLElement)) return;
 
-    const paths = button.querySelectorAll('svg path');
-    const current = this.config.states[this.state.currentState];
-    
-    // 更新按钮标题
-    button.title = current.title;
-    
-    // 更新按钮样式
-    if (current.icon === 'disabled') {
-      // 禁用状态样式
-      button.style.backgroundColor = 'transparent';
-      button.style.opacity = '0.6';
-      paths.forEach(path => {
-        path.setAttribute('fill', '#999');
-      });
-    } else {
-      // 激活状态样式
-      button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
-      button.style.opacity = '1';
-      paths.forEach(path => {
-        path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)');
-      });
-    }
-    
-    // 更新图标
-    this.updateButtonIcon(button as HTMLButtonElement);
+      // 先更新图标，确保图标内容正确
+      this.updateButtonIconForButton(button);
+
+      // 使用 setTimeout 确保 DOM 更新后再应用样式
+      setTimeout(() => {
+        const paths = button.querySelectorAll('svg path');
+        const current = this.config.states[this.state.currentState];
+        
+        // 更新按钮标题
+        button.title = current.title;
+        
+        // 更新按钮样式
+        if (current.icon === 'disabled') {
+          // 禁用状态样式
+          button.style.backgroundColor = 'transparent';
+          button.style.opacity = '0.6';
+          paths.forEach(path => {
+            path.setAttribute('fill', '#999');
+          });
+        } else {
+          // 激活状态样式
+          button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
+          button.style.opacity = '1';
+          paths.forEach(path => {
+            path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)');
+          });
+        }
+      }, 0);
+    });
   }
 
   /**
-   * 设置观察者
+   * 为指定按钮更新图标
+   */
+  private updateButtonIconForButton(button: HTMLElement): void {
+    const current = this.config.states[this.state.currentState];
+    
+    // 根据当前状态设置不同图标
+    switch(current.icon) {
+      case 'portrait': // 11:16 竖版
+        button.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 3H20V21H4V3ZM19 19H5V5H19V19Z" fill="currentColor"/>
+            <path d="M8 7H16V11H8V7Z" fill="currentColor"/>
+          </svg>
+        `;
+        break;
+      case 'landscape': // 16:9 横版
+        button.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 3H20V21H4V3ZM19 19H5V5H19V19Z" fill="currentColor"/>
+            <path d="M7 8H17V10H7V8Z" fill="currentColor"/>
+          </svg>
+        `;
+        break;
+      case 'disabled': // 禁用状态
+        button.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 3H20V21H4V3ZM19 19H5V5H19V19Z" fill="currentColor"/>
+            <path d="M15 8L9 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        `;
+        break;
+    }
+  }
+
+  /**
+   * 设置观察者（已禁用，由 ToolbarButtonManager 统一管理）
    */
   private setupObserver(): void {
-    this.state.observer = new MutationObserver((mutations) => {
-      const button = document.getElementById(this.config.buttonId);
-      const activePanel = document.querySelector(this.config.targetPanelSelector);
-      
-      // 检查是否需要重新创建按钮
-      if (activePanel) {
-        const toolbar = activePanel.querySelector(this.config.toolbarSelector);
-        if (toolbar && (!button || !toolbar.contains(button))) {
-          this.createButton();
-        }
-      } else if (button) {
-        // 如果没有激活面板但按钮存在，移除按钮
-        button.remove();
-      }
-    });
-
-    // 监视整个文档的变化
-    this.state.observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class']
-    });
+    console.log('🔧 卡片封面比例切换插件：观察者已禁用，由按钮管理器统一管理');
   }
 }

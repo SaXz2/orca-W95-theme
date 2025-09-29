@@ -38,7 +38,8 @@ export class ListBreadcrumbTogglePluginImpl implements ListBreadcrumbTogglePlugi
       this.applyHideStyle();
     }
     
-    this.setupObserver();
+    // 移除旧的观察者，使用按钮管理器统一管理
+    // this.setupObserver();
 
     this.state.isInitialized = true;
     console.log('✅ W95 列表面包屑切换模块已初始化');
@@ -188,6 +189,7 @@ export class ListBreadcrumbTogglePluginImpl implements ListBreadcrumbTogglePlugi
 
     // 使用按钮管理器注册按钮
     if (this.buttonManager) {
+      this.buttonEl = button; // 保存按钮引用
       this.buttonManager.registerButton(
         this.config.buttonId,
         button,
@@ -196,34 +198,15 @@ export class ListBreadcrumbTogglePluginImpl implements ListBreadcrumbTogglePlugi
         () => {
           // 按钮添加到DOM后更新样式
           this.updateButtonStyle();
+        },
+        (newButton: HTMLButtonElement) => {
+          // 重新绑定点击事件
+          newButton.addEventListener('click', () => this.toggleState());
+          console.log('🔧 列表面包屑切换插件：重新绑定点击事件');
         }
       );
     } else {
-      // 回退到原来的方式
-      const activePanel = document.querySelector(this.config.targetPanelSelector);
-      if (activePanel) {
-        const toolbar = activePanel.querySelector(this.config.toolbarSelector);
-        if (toolbar) {
-          toolbar.appendChild(button);
-          this.buttonEl = button;
-          this.state.retryCount = 0;
-          
-          // 恢复保存的状态
-          if (this.state.isHidden) {
-            this.applyHideStyle();
-          }
-          this.updateButtonStyle();
-          return;
-        }
-      }
-
-      // 重试逻辑
-      if (this.state.retryCount < this.config.maxRetries) {
-        this.state.retryCount++;
-        setTimeout(() => this.createButton(), this.config.retryInterval);
-      } else {
-        console.warn('无法添加列表面包屑切换按钮：超过最大重试次数');
-      }
+      console.warn('🔧 列表面包屑切换插件：按钮管理器不可用');
     }
   }
 
@@ -257,55 +240,59 @@ export class ListBreadcrumbTogglePluginImpl implements ListBreadcrumbTogglePlugi
    * 更新按钮样式
    */
   private updateButtonStyle(): void {
-    const button = document.getElementById(this.config.buttonId);
-    if (!button) return;
+    // 更新所有同名按钮
+    const buttons = document.querySelectorAll(`#${this.config.buttonId}`);
+    buttons.forEach(button => {
+      if (!(button instanceof HTMLElement)) return;
 
-    // 先更新图标，确保图标内容正确
-    this.updateButtonIcon();
+      // 先更新图标，确保图标内容正确
+      this.updateButtonIconForButton(button);
 
-    const paths = button.querySelectorAll('svg path');
-    const strokes = button.querySelectorAll('svg stroke');
-    
-    if (this.state.isHidden) {
-      button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
-      paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)'));
-      button.title = '显示列表面包屑';
-    } else {
-      button.style.backgroundColor = 'transparent';
-      paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-text-secondary, #666)'));
-      if (strokes.length > 0) {
-        strokes.forEach(stroke => stroke.setAttribute('stroke', 'var(--orca-color-text-secondary, #666)'));
+      const paths = button.querySelectorAll('svg path');
+      const strokes = button.querySelectorAll('svg stroke');
+      
+      if (this.state.isHidden) {
+        button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
+        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)'));
+        button.title = '显示列表面包屑';
+      } else {
+        button.style.backgroundColor = 'transparent';
+        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-text-secondary, #666)'));
+        if (strokes.length > 0) {
+          strokes.forEach(stroke => stroke.setAttribute('stroke', 'var(--orca-color-text-secondary, #666)'));
+        }
+        button.title = '隐藏列表面包屑';
       }
-      button.title = '隐藏列表面包屑';
+    });
+  }
+
+  /**
+   * 为指定按钮更新图标
+   */
+  private updateButtonIconForButton(button: HTMLElement): void {
+    // 根据当前状态设置正确的图标
+    if (this.state.isHidden) {
+      button.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 6L8.59 7.41 13.17 12L8.59 16.59 10 18L16 12L10 6Z" fill="#666"/>
+          <path d="M3 12L5 10V14L3 12Z" fill="#666"/>
+          <path d="M20 10L22 12L20 14V10Z" fill="#666"/>
+        </svg>
+      `;
+    } else {
+      button.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M10 6L8.59 7.41 13.17 12L8.59 16.59 10 18L16 12L10 6Z" fill="#666"/>
+          <path d="M3 12L5 10V14L3 12Z" fill="#666"/>
+        </svg>
+      `;
     }
   }
 
   /**
-   * 设置观察者
+   * 设置观察者（已禁用，由 ToolbarButtonManager 统一管理）
    */
   private setupObserver(): void {
-    this.state.observer = new MutationObserver((mutations) => {
-      const button = document.getElementById(this.config.buttonId);
-      const activePanel = document.querySelector(this.config.targetPanelSelector);
-      
-      // 检查是否需要重新创建按钮
-      if (activePanel) {
-        const toolbar = activePanel.querySelector(this.config.toolbarSelector);
-        if (toolbar && (!button || !toolbar.contains(button))) {
-          this.createButton();
-        }
-      } else if (button) {
-        // 如果没有激活面板但按钮存在，移除按钮
-        button.remove();
-      }
-    });
-
-    // 监视整个文档的变化
-    this.state.observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class']
-    });
+    console.log('🔧 列表面包屑切换插件：观察者已禁用，由按钮管理器统一管理');
   }
 }

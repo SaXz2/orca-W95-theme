@@ -215,6 +215,7 @@ export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlu
 
     // 使用按钮管理器注册按钮
     if (this.buttonManager) {
+      this.buttonEl = button; // 保存按钮引用
       this.buttonManager.registerButton(
         this.config.buttonId,
         button,
@@ -223,34 +224,28 @@ export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlu
         () => {
           // 按钮添加到DOM后更新样式
           this.updateButtonStyle();
+        },
+        (newButton: HTMLButtonElement) => {
+          // 重新绑定点击事件（使用防抖逻辑）
+          let clickTimeout: number | null = null;
+          newButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (clickTimeout !== null) {
+              clearTimeout(clickTimeout);
+            }
+            
+            clickTimeout = window.setTimeout(() => {
+              this.toggleState();
+              clickTimeout = null;
+            }, 100);
+          });
+          console.log('🔧 镜像容器切换插件：重新绑定点击事件');
         }
       );
     } else {
-      // 回退到原来的方式
-      const activePanel = document.querySelector(this.config.targetPanelSelector);
-      if (activePanel) {
-        const toolbar = activePanel.querySelector(this.config.toolbarSelector);
-        if (toolbar) {
-          toolbar.appendChild(button);
-          this.buttonEl = button;
-          this.state.retryCount = 0;
-          
-          // 恢复保存的状态
-          if (this.state.isHidden) {
-            this.applyHideStyle();
-          }
-          this.updateButtonStyle();
-          return;
-        }
-      }
-
-      // 重试逻辑
-      if (this.state.retryCount < this.config.maxRetries) {
-        this.state.retryCount++;
-        setTimeout(() => this.createButton(), this.config.retryInterval);
-      } else {
-        console.warn('无法添加镜像容器切换按钮：超过最大重试次数');
-      }
+      console.warn('🔧 镜像容器切换插件：按钮管理器不可用');
     }
   }
 
@@ -281,50 +276,52 @@ export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlu
    * 更新按钮样式
    */
   private updateButtonStyle(): void {
-    const button = document.getElementById(this.config.buttonId);
-    if (!button) return;
+    // 更新所有同名按钮
+    const buttons = document.querySelectorAll(`#${this.config.buttonId}`);
+    buttons.forEach(button => {
+      if (!(button instanceof HTMLElement)) return;
 
-    // 先更新图标，确保图标内容正确
-    this.updateButtonIcon();
+      // 先更新图标，确保图标内容正确
+      this.updateButtonIconForButton(button);
 
-    const paths = button.querySelectorAll('svg path');
+      const paths = button.querySelectorAll('svg path');
+      if (this.state.isHidden) {
+        button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
+        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)'));
+        button.title = '显示镜像容器';
+      } else {
+        button.style.backgroundColor = 'transparent';
+        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-text-secondary, #666)'));
+        button.title = '隐藏镜像容器';
+      }
+    });
+  }
+
+  /**
+   * 为指定按钮更新图标
+   */
+  private updateButtonIconForButton(button: HTMLElement): void {
+    // 根据当前状态设置正确的图标
     if (this.state.isHidden) {
-      button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
-      paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)'));
-      button.title = '显示镜像容器';
+      button.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM16.24 7.76C14.97 6.49 13.51 5.03 12.24 3.76L10.76 5.24C12.03 6.51 13.49 7.97 14.76 9.24L16.24 7.76Z" fill="#666"/>
+        </svg>
+      `;
     } else {
-      button.style.backgroundColor = 'transparent';
-      paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-text-secondary, #666)'));
-      button.title = '隐藏镜像容器';
+      button.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 4.5C7 4.5 2.73 7.61 1 12C2.73 16.39 7 19.5 12 19.5C17 19.5 21.27 16.39 23 12C21.27 7.61 17 4.5 12 4.5ZM12 17C9.24 17 7 14.76 7 12C7 9.24 9.24 7 12 7C14.76 7 17 9.24 17 12C17 14.76 14.76 17 12 17ZM16.24 7.76L14.76 9.24C13.49 7.97 12.03 6.51 10.76 5.24L12.24 3.76C13.51 5.03 14.97 6.49 16.24 7.76Z" fill="#666"/>
+        </svg>
+      `;
     }
   }
 
   /**
-   * 处理 DOM 变化
+   * 处理 DOM 变化（已禁用，由 ToolbarButtonManager 统一管理）
    * 由共享观察者调用
    */
   public onMutations(mutations: MutationRecord[]): void {
-    // 使用节流逻辑处理 DOM 变化
-    if (this.updateTimer !== null) {
-      return; // 如果已经有一个更新计划，不再重复安排
-    }
-    
-    this.updateTimer = window.setTimeout(() => {
-      const button = document.getElementById(this.config.buttonId);
-      const activePanel = document.querySelector(this.config.targetPanelSelector);
-      
-      // 检查是否需要重新创建按钮
-      if (activePanel) {
-        const toolbar = activePanel.querySelector(this.config.toolbarSelector);
-        if (toolbar && (!button || !toolbar.contains(button))) {
-          this.createButton();
-        }
-      } else if (button) {
-        // 如果没有激活面板但按钮存在，移除按钮
-        button.remove();
-      }
-      
-      this.updateTimer = null;
-    }, 150); // 150ms 的节流延迟
+    console.log('🔧 镜像容器切换插件：DOM变化处理已禁用，由按钮管理器统一管理');
   }
 }

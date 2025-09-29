@@ -45,7 +45,7 @@ export const TOOLBAR_BUTTON_CONFIG = {
   retryInterval: 300,
   maxRetries: 30,
   toolbarSelector: '.orca-block-editor-sidetools',
-  targetPanelSelector: '.orca-panel.active'
+  targetPanelSelector: '.orca-hideable:not(.orca-hideable-hidden)'
 } as const;
 
 // 标题编号切换配置

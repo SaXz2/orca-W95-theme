@@ -384,6 +384,11 @@ export class QueryListBlockCreationTimePluginImpl implements QueryListBlockCreat
       () => {
         // 按钮添加完成后更新样式
         this.updateButtonStyle();
+      },
+      (newButton: HTMLButtonElement) => {
+        // 重新绑定点击事件
+        newButton.addEventListener('click', () => this.toggleState());
+        console.log('🔧 查询列表块创建时间插件：重新绑定点击事件');
       }
     );
   }
@@ -455,21 +460,45 @@ export class QueryListBlockCreationTimePluginImpl implements QueryListBlockCreat
    * 更新按钮样式
    */
   private updateButtonStyle(): void {
-    const button = document.getElementById(this.config.buttonId);
-    if (!button) return;
+    // 更新所有同名按钮
+    const buttons = document.querySelectorAll(`#${this.config.buttonId}`);
+    buttons.forEach(button => {
+      if (!(button instanceof HTMLElement)) return;
 
+      // 先更新图标，确保图标内容正确
+      this.updateButtonIconForButton(button);
+
+      // 使用 setTimeout 确保 DOM 更新后再应用样式
+      setTimeout(() => {
+        const icons = button.querySelectorAll('i');
+        
+        // 更新按钮标题
+        button.title = this.getButtonTitle();
+
+        // 更新按钮背景色和文字颜色
+        if (this.state.isEnabled) {
+          button.style.backgroundColor = 'var(--orca-color-primary-1, rgba(24, 124, 201, 0.15))';
+          button.style.color = 'var(--orca-color-primary-5, #187cc9)';
+          icons.forEach(icon => {
+            icon.style.color = 'var(--orca-color-primary-5, #187cc9)';
+          });
+        } else {
+          button.style.backgroundColor = 'transparent';
+          button.style.color = 'var(--orca-color-text-2, #666)';
+          icons.forEach(icon => {
+            icon.style.color = 'var(--orca-color-text-2, #666)';
+          });
+        }
+      }, 0);
+    });
+  }
+
+  /**
+   * 为指定按钮更新图标
+   */
+  private updateButtonIconForButton(button: HTMLElement): void {
     // 更新按钮内容（只显示图标，不显示文字）
     button.innerHTML = `<i class="${this.getButtonIcon()}" style="font-size: 14px;"></i>`;
-    button.title = this.getButtonTitle();
-
-    // 更新按钮背景色和文字颜色
-    if (this.state.isEnabled) {
-      button.style.backgroundColor = 'var(--orca-color-primary-1, rgba(24, 124, 201, 0.15))';
-      button.style.color = 'var(--orca-color-primary-5, #187cc9)';
-    } else {
-      button.style.backgroundColor = 'transparent';
-      button.style.color = 'var(--orca-color-text-2, #666)';
-    }
   }
 
   /**

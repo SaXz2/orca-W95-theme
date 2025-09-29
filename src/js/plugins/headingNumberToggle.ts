@@ -43,7 +43,8 @@ export class HeadingNumberTogglePluginImpl implements HeadingNumberTogglePlugin 
       this.applyNumbers();
     }
     
-    this.setupToolbarObserver();
+    // 移除重复的观察者设置，由 ToolbarButtonManager 统一管理
+    // this.setupToolbarObserver();
 
     this.state.isInitialized = true;
     console.log('✅ W95 标题编号切换插件已初始化');
@@ -228,6 +229,7 @@ export class HeadingNumberTogglePluginImpl implements HeadingNumberTogglePlugin 
 
     // 使用按钮管理器注册按钮
     if (this.buttonManager) {
+      console.log('🔧 标题编号插件：通过按钮管理器注册按钮');
       this.buttonManager.registerButton(
         this.config.buttonId,
         button,
@@ -235,31 +237,17 @@ export class HeadingNumberTogglePluginImpl implements HeadingNumberTogglePlugin 
         'headingNumberToggle',
         () => {
           // 按钮添加到DOM后更新样式
+          console.log('🔧 标题编号插件：按钮已添加到DOM，更新样式');
           this.updateButtonStyle();
+        },
+        (newButton: HTMLButtonElement) => {
+          // 重新绑定点击事件
+          newButton.addEventListener('click', async () => await this.toggleState());
+          console.log('🔧 标题编号插件：重新绑定点击事件');
         }
       );
     } else {
-      // 回退到原来的方式
-      const toolbar = document.querySelector(this.config.toolbarSelector);
-      if (toolbar) {
-        toolbar.appendChild(button);
-        this.state.retryCount = 0;
-        
-        // 恢复保存的状态
-        if (this.state.isEnabled) {
-          this.updateButtonStyle();
-          this.applyNumbers();
-        }
-        return;
-      }
-
-      // 重试逻辑
-      if (this.state.retryCount < this.config.maxRetries) {
-        this.state.retryCount++;
-        setTimeout(() => this.createButton(), this.config.retryInterval);
-      } else {
-        console.warn('无法添加标题编号按钮：超过最大重试次数');
-      }
+      console.warn('🔧 标题编号插件：按钮管理器不可用');
     }
   }
 
@@ -292,38 +280,53 @@ export class HeadingNumberTogglePluginImpl implements HeadingNumberTogglePlugin 
    * 更新按钮样式
    */
   private updateButtonStyle(): void {
-    const button = document.getElementById(this.config.buttonId);
-    if (!button) return;
+    // 更新所有同名按钮
+    const buttons = document.querySelectorAll(`#${this.config.buttonId}`);
+    buttons.forEach(button => {
+      if (!(button instanceof HTMLElement)) return;
 
-    // 先更新图标，确保图标内容正确
-    this.updateButtonIcon();
+      // 先更新图标，确保图标内容正确
+      this.updateButtonIconForButton(button);
 
-    const paths = button.querySelectorAll('svg path');
+      const paths = button.querySelectorAll('svg path');
+      if (this.state.isEnabled) {
+        button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
+        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)'));
+      } else {
+        button.style.backgroundColor = 'transparent';
+        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-text-secondary, #666)'));
+      }
+    });
+  }
+
+  /**
+   * 为指定按钮更新图标
+   */
+  private updateButtonIconForButton(button: HTMLElement): void {
+    // 根据当前状态设置正确的图标
     if (this.state.isEnabled) {
-      button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
-      paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)'));
+      button.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L13.09 8.26L19 7L17.74 13.74L24 15L17.74 16.26L19 23L13.09 21.74L12 28L10.91 21.74L5 23L6.26 16.26L0 15L6.26 13.74L5 7L10.91 8.26L12 2Z" fill="#666"/>
+          <path d="M12 9V15" stroke="#666" stroke-width="2" stroke-linecap="round"/>
+          <path d="M9 12H15" stroke="#666" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      `;
     } else {
-      button.style.backgroundColor = 'transparent';
-      paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-text-secondary, #666)'));
+      button.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 6H21V8H3V6ZM3 11H21V13H3V11ZM3 16H21V18H3V16Z" fill="#666"/>
+        </svg>
+      `;
     }
   }
 
   /**
-   * 监听工具栏变化
+   * 监听工具栏变化（已禁用，由 ToolbarButtonManager 统一管理）
    */
   private setupToolbarObserver(): void {
-    this.state.observer = new MutationObserver((mutations) => {
-      const button = document.getElementById(this.config.buttonId);
-      const toolbar = document.querySelector(this.config.toolbarSelector);
-      
-      if (toolbar && (!button || !toolbar.contains(button))) {
-        this.createButton();
-      }
-    });
-
-    this.state.observer.observe(document.body, {
-      childList: true,
-      subtree: true
-    });
+    // 此方法已被禁用，由 ToolbarButtonManager 统一管理按钮
+    // 避免重复的观察者逻辑
+    console.log('🔧 标题编号插件：工具栏观察者已禁用，由按钮管理器统一管理');
   }
 }

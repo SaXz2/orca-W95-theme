@@ -222,7 +222,8 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
       isThemeCurrentlyActive = false;
     }
     
-    this.setupObserver();
+    // 移除旧的观察者，使用按钮管理器统一管理
+    // this.setupObserver();
     
     // 监听主题状态变化事件
     this.stateChangeHandler = (event: Event) => {
@@ -662,6 +663,7 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
 
     // 使用按钮管理器注册按钮
     if (this.buttonManager) {
+      this.buttonEl = button; // 保存按钮引用
       this.buttonManager.registerButton(
         this.config.buttonId,
         button,
@@ -670,28 +672,25 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
         () => {
           // 按钮添加完成后更新样式
           this.updateButtonStyle();
+        },
+        (newButton: HTMLButtonElement) => {
+          // 重新绑定点击事件
+          newButton.addEventListener('click', async () => {
+            // 直接调用全局命令函数
+            toggleThemeCommandExecute();
+            // 延迟更新按钮状态和保存状态，确保状态已同步
+            setTimeout(async () => {
+              // 同步状态
+              this.state.isThemeLoaded = isThemeCurrentlyActive;
+              this.updateButtonStyle();
+              await this.saveState();
+            }, 50);
+          });
+          console.log('🔧 主题2切换插件：重新绑定点击事件');
         }
       );
     } else {
-      // 回退到原来的方式
-      const activePanel = document.querySelector('.orca-panel.active');
-      if (activePanel) {
-        const toolbar = activePanel.querySelector(this.config.toolbarSelector);
-        if (toolbar) {
-          toolbar.appendChild(button);
-          this.buttonEl = button;
-          this.state.retryCount = 0;
-          return;
-        }
-      }
-
-      // 重试逻辑
-      if (this.state.retryCount < this.config.maxRetries) {
-        this.state.retryCount++;
-        setTimeout(() => this.createButton(), this.config.retryInterval);
-      } else {
-        console.warn('无法添加主题2切换按钮：超过最大重试次数');
-      }
+      console.warn('🔧 主题2切换插件：按钮管理器不可用');
     }
   }
 
@@ -728,55 +727,62 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
    * 更新按钮样式
    */
   private updateButtonStyle(): void {
-    const button = document.getElementById(this.config.buttonId);
-    if (!button) return;
+    // 更新所有同名按钮
+    const buttons = document.querySelectorAll(`#${this.config.buttonId}`);
+    buttons.forEach(button => {
+      if (!(button instanceof HTMLElement)) return;
 
-    // 优先使用全局状态，如果全局状态未设置则使用实例状态
-    const isActive = isThemeCurrentlyActive !== undefined ? isThemeCurrentlyActive : this.state.isThemeLoaded;
-    
-    const svgElements = button.querySelectorAll('svg circle, svg line, svg path');
-    if (isActive) {
-      // 主题2已加载 - 激活状态
-      button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
-      svgElements.forEach(el => el.setAttribute('stroke', 'var(--orca-color-primary, #165DFF)'));
-      button.title = '切换到默认主题';
-    } else {
-      // 主题2未加载 - 非激活状态
-      button.style.backgroundColor = 'transparent';
-      svgElements.forEach(el => el.setAttribute('stroke', 'var(--orca-color-text-secondary, #666)'));
-      button.title = '切换到主题2';
-    }
-
-    // 更新图标
-    this.updateButtonIcon(button as HTMLButtonElement);
+      // 优先使用全局状态，如果全局状态未设置则使用实例状态
+      const isActive = isThemeCurrentlyActive !== undefined ? isThemeCurrentlyActive : this.state.isThemeLoaded;
+      
+      // 先更新图标，确保图标内容正确
+      this.updateButtonIconForButton(button, isActive);
+      
+      const svgElements = button.querySelectorAll('svg circle, svg line, svg path');
+      if (isActive) {
+        // 主题2已加载 - 激活状态
+        button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
+        svgElements.forEach(el => el.setAttribute('stroke', 'var(--orca-color-primary, #165DFF)'));
+        button.title = '切换到默认主题';
+      } else {
+        // 主题2未加载 - 非激活状态
+        button.style.backgroundColor = 'transparent';
+        svgElements.forEach(el => el.setAttribute('stroke', 'var(--orca-color-text-secondary, #666)'));
+        button.title = '切换到主题2';
+      }
+    });
   }
 
   /**
-   * 设置观察者
+   * 为指定按钮更新图标
+   */
+  private updateButtonIconForButton(button: HTMLElement, isActive: boolean): void {
+    if (isActive) {
+      // 主题2已加载 - 显示调色板图标（表示可以切换回默认主题）
+      button.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/>
+          <circle cx="12" cy="12" r="6" stroke="currentColor" stroke-width="1" fill="none"/>
+          <circle cx="12" cy="12" r="2" fill="currentColor"/>
+        </svg>
+      `;
+    } else {
+      // 主题2未加载 - 显示画笔图标（表示可以应用主题2）
+      button.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 19l7-7 3 3-7 7-3-3z" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" stroke="currentColor" stroke-width="2" fill="none"/>
+          <path d="M2 2l7.586 7.586" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="11" cy="11" r="2" stroke="currentColor" stroke-width="2" fill="none"/>
+        </svg>
+      `;
+    }
+  }
+
+  /**
+   * 设置观察者（已禁用，由 ToolbarButtonManager 统一管理）
    */
   private setupObserver(): void {
-    this.state.observer = new MutationObserver((mutations) => {
-      const button = document.getElementById(this.config.buttonId);
-      const activePanel = document.querySelector('.orca-panel.active');
-      
-      // 检查是否需要重新创建按钮
-      if (activePanel) {
-        const toolbar = activePanel.querySelector(this.config.toolbarSelector);
-        if (toolbar && (!button || !toolbar.contains(button))) {
-          this.createButton();
-        }
-      } else if (button) {
-        // 如果没有激活面板但按钮存在，移除按钮
-        button.remove();
-      }
-    });
-
-    // 监视整个文档的变化
-    this.state.observer.observe(document.body, {
-      childList: true,
-      subtree: true,
-      attributes: true,
-      attributeFilter: ['class']
-    });
+    console.log('🔧 主题2切换插件：观察者已禁用，由按钮管理器统一管理');
   }
 }

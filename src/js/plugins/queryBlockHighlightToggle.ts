@@ -9,8 +9,8 @@ import type {
   QueryBlockHighlightToggleState 
 } from '../../types';
 import { QUERY_BLOCK_HIGHLIGHT_TOGGLE_CONFIG } from '../../constants';
-import { createToolbarButton, updateButtonStyle, addButtonToToolbar, createRetryMechanism, type ButtonConfig, type ButtonStyleConfig, type ToolbarButtonManager } from '../utils/buttonUtils';
-import { createMainObserver, createBlockObserver, startMainObserver, disconnectObserver } from '../utils/observerUtils';
+import { createToolbarButton, updateButtonStyle, type ButtonConfig, type ButtonStyleConfig, type ToolbarButtonManager } from '../utils/buttonUtils';
+import { createBlockObserver, disconnectObserver } from '../utils/observerUtils';
 
 export class QueryBlockHighlightTogglePluginImpl implements QueryBlockHighlightTogglePlugin {
   private state: QueryBlockHighlightToggleState = {
@@ -272,33 +272,15 @@ export class QueryBlockHighlightTogglePluginImpl implements QueryBlockHighlightT
         () => {
           // 按钮添加到DOM后更新样式
           this.updateButtonStyle();
+        },
+        (newButton: HTMLButtonElement) => {
+          // 重新绑定点击事件
+          newButton.addEventListener('click', () => this.toggleHighlightState());
+          console.log('🔧 查询块高亮切换插件：重新绑定点击事件');
         }
       );
     } else {
-      // 回退到原来的重试机制
-      createRetryMechanism(
-        () => {
-          const success = addButtonToToolbar(
-            this.buttonEl!,
-            this.config.toolbarSelector,
-            this.config.targetPanelSelector
-          );
-          
-          if (success) {
-            this.state.retryCount = 0;
-            // 恢复保存的高亮状态
-            if (this.state.isHighlighted) {
-              this.highlightMatchingBlocks();
-            }
-            this.updateButtonStyle();
-          }
-          
-          return success;
-        },
-        this.config.retryInterval,
-        this.config.maxRetries,
-        () => console.warn('无法添加"仅块引用背景色"按钮：超过最大重试次数')
-      );
+      console.warn('🔧 查询块高亮切换插件：按钮管理器不可用');
     }
   }
 
@@ -326,25 +308,56 @@ export class QueryBlockHighlightTogglePluginImpl implements QueryBlockHighlightT
    * 更新按钮样式：根据状态切换颜色和背景
    */
   private updateButtonStyle(): void {
-    if (!this.buttonEl) return;
+    // 更新所有同名按钮
+    const buttons = document.querySelectorAll(`#${this.config.buttonId}`);
+    buttons.forEach(button => {
+      if (!(button instanceof HTMLElement)) return;
 
-    // 先更新图标，确保图标内容正确
-    this.updateButtonIcon();
+      // 先更新图标，确保图标内容正确
+      this.updateButtonIconForButton(button);
 
-    const styleConfig: ButtonStyleConfig = {
-      active: {
-        backgroundColor: 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))',
-        iconColor: 'var(--orca-color-primary, #165DFF)',
-        title: '取消仅块引用区块背景色'
-      },
-      inactive: {
-        backgroundColor: 'transparent',
-        iconColor: 'var(--orca-color-text-secondary, #666)',
-        title: '设置仅块引用区块背景色'
-      }
-    };
+      // 使用 setTimeout 确保 DOM 更新后再应用样式
+      setTimeout(() => {
+        const rects = button.querySelectorAll('svg rect');
+        
+        if (this.state.isHighlighted) {
+          button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
+          rects.forEach(rect => {
+            rect.setAttribute('fill', 'var(--orca-color-primary, #165DFF)');
+            rect.setAttribute('opacity', '0.8');
+          });
+          button.title = '取消仅块引用区块背景色';
+        } else {
+          button.style.backgroundColor = 'transparent';
+          rects.forEach(rect => {
+            rect.setAttribute('stroke', 'var(--orca-color-text-secondary, #666)');
+            rect.removeAttribute('fill');
+            rect.removeAttribute('opacity');
+          });
+          button.title = '设置仅块引用区块背景色';
+        }
+      }, 0);
+    });
+  }
 
-    updateButtonStyle(this.buttonEl, styleConfig, this.state.isHighlighted);
+  /**
+   * 为指定按钮更新图标
+   */
+  private updateButtonIconForButton(button: HTMLElement): void {
+    // 根据当前状态设置正确的图标
+    if (this.state.isHighlighted) {
+      button.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor" opacity="0.8"/>
+        </svg>
+      `;
+    } else {
+      button.innerHTML = `
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      `;
+    }
   }
 
   /**
@@ -367,43 +380,9 @@ export class QueryBlockHighlightTogglePluginImpl implements QueryBlockHighlightT
   }
 
   /**
-   * 设置主观察者：监听面板切换，确保按钮在新页面正常工作
+   * 设置主观察者（已禁用，由 ToolbarButtonManager 统一管理）
    */
   private setupMainObserver(): void {
-    this.state.mainObserver = createMainObserver(
-      {
-        targetPanelSelector: this.config.targetPanelSelector,
-        toolbarSelector: this.config.toolbarSelector,
-        observerOptions: {
-          childList: true,
-          subtree: true,
-          attributes: true,
-          attributeFilter: ['class']
-        }
-      },
-      (activePanel) => {
-        if (activePanel) {
-          const toolbar = activePanel.querySelector(this.config.toolbarSelector);
-          // 确保按钮存在于当前激活面板的工具栏
-          if (toolbar && (!this.buttonEl || !toolbar.contains(this.buttonEl))) {
-            this.createButton();
-          }
-          // 更新区块观察者到当前面板
-          this.setupBlockObserver(activePanel);
-          // 确保高亮状态正确应用
-          if (this.state.isHighlighted) {
-            this.highlightMatchingBlocks();
-          }
-        } else if (this.buttonEl) {
-          // 无激活面板时移除按钮并断开观察者
-          this.buttonEl.remove();
-          this.buttonEl = null;
-          disconnectObserver(this.state.blockObserver);
-        }
-      }
-    );
-
-    // 启动主观察者
-    startMainObserver(this.state.mainObserver);
+    console.log('🔧 查询块高亮切换插件：主观察者已禁用，由按钮管理器统一管理');
   }
 }

@@ -434,12 +434,13 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
     }
 
     .orca-block-editor {
-        background-image: radial-gradient(circle, rgba(71, 71, 71, 0.11) 1px, transparent 1px) !important;
-        background-size: 25px 25px !important;
-        background: #f5f1ea2e !important;
         border: none !important;
         box-shadow: none !important;
         caret-color: #ff6b6b !important;
+    }
+
+    .orca-panel {
+        background-color: #f5f1ea2e;
     }
     
     .orca-container ::selection {
@@ -464,8 +465,6 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
     .orca-toc {
         border: none !important;
         background: #f7f7f7ab !important;
-        background-image: radial-gradient(circle, rgba(71, 71, 71, 0.11) 1px, transparent 1px) !important;
-        background-size: 25px 25px !important;
     }
 
     .orca-query-result-list-toolbar {

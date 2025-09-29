@@ -20,4 +20,7 @@
         --orca-color-mirror: #3a3d43;
     }
 
+    .orca-panel {
+        background-color: hsl(235.47deg 8.4% 37.18% / 11%);
+    }
 }

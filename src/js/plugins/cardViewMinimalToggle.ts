@@ -12,6 +12,7 @@ import type {
 import { CARD_VIEW_MINIMAL_TOGGLE_CONFIG } from '../../constants';
 import type { ToolbarButtonManager } from '../utils/buttonUtils';
 import { observerManager } from '../utils/observerManager';
+import { applyButtonStyle } from '../utils/buttonUtils';
 
 export class CardViewMinimalTogglePluginImpl implements CardViewMinimalTogglePlugin {
   private state: CardViewMinimalToggleState = {
@@ -196,7 +197,7 @@ export class CardViewMinimalTogglePluginImpl implements CardViewMinimalTogglePlu
     button.style.padding = '0';
     button.style.border = 'none';
     button.style.borderRadius = '3px';
-    button.style.backgroundColor = 'transparent';
+    applyButtonStyle(button, 'inactive');
     button.style.cursor = 'pointer';
     button.style.display = 'flex';
     button.style.alignItems = 'center';
@@ -292,12 +293,10 @@ export class CardViewMinimalTogglePluginImpl implements CardViewMinimalTogglePlu
 
       const paths = button.querySelectorAll('svg path');
       if (this.state.isMinimal) {
-        button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
-        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)'));
+        applyButtonStyle(button, 'active');
         button.title = '恢复完整视图';
       } else {
-        button.style.backgroundColor = 'transparent';
-        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-text-secondary, #666)'));
+        applyButtonStyle(button, 'inactive');
         button.title = '切换到极简视图';
       }
     });

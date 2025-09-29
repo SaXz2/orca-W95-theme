@@ -13,6 +13,7 @@ import type {
 } from '../../types';
 import { CARD_COVER_ASPECT_RATIO_CONFIG } from '../../constants';
 import type { ToolbarButtonManager } from '../utils/buttonUtils';
+import { applyButtonStyle } from '../utils/buttonUtils';
 
 export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRatioPlugin {
   private state: CardCoverAspectRatioState = {
@@ -466,12 +467,8 @@ export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRati
     // 更新按钮样式为激活状态
     const button = document.getElementById(this.config.buttonId);
     if (button) {
-      button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
+      applyButtonStyle(button, 'active');
       button.style.opacity = '1';
-      const paths = button.querySelectorAll('svg path');
-      paths.forEach(path => {
-        path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)');
-      });
       
       // 更新按钮标题
       button.title = customRatio.title;
@@ -629,7 +626,7 @@ export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRati
     button.style.padding = '0';
     button.style.border = 'none';
     button.style.borderRadius = '3px';
-    button.style.backgroundColor = 'transparent';
+    applyButtonStyle(button, 'inactive');
     button.style.cursor = 'pointer';
     button.style.display = 'flex';
     button.style.alignItems = 'center';
@@ -727,18 +724,12 @@ export class CardCoverAspectRatioTogglePluginImpl implements CardCoverAspectRati
         // 更新按钮样式
         if (current.icon === 'disabled') {
           // 禁用状态样式
-          button.style.backgroundColor = 'transparent';
+          applyButtonStyle(button, 'inactive');
           button.style.opacity = '0.6';
-          paths.forEach(path => {
-            path.setAttribute('fill', '#999');
-          });
         } else {
           // 激活状态样式
-          button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
+          applyButtonStyle(button, 'active');
           button.style.opacity = '1';
-          paths.forEach(path => {
-            path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)');
-          });
         }
       }, 0);
     });

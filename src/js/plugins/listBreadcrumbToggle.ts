@@ -10,6 +10,7 @@ import type {
 } from '../../types';
 import { LIST_BREADCRUMB_TOGGLE_CONFIG } from '../../constants';
 import type { ToolbarButtonManager } from '../utils/buttonUtils';
+import { applyButtonStyle } from '../utils/buttonUtils';
 
 export class ListBreadcrumbTogglePluginImpl implements ListBreadcrumbTogglePlugin {
   private state: ListBreadcrumbToggleState = {
@@ -178,7 +179,7 @@ export class ListBreadcrumbTogglePluginImpl implements ListBreadcrumbTogglePlugi
     button.style.padding = '0';
     button.style.border = 'none';
     button.style.borderRadius = '3px';
-    button.style.backgroundColor = 'transparent';
+    applyButtonStyle(button, 'inactive');
     button.style.cursor = 'pointer';
     button.style.display = 'flex';
     button.style.alignItems = 'center';
@@ -252,15 +253,10 @@ export class ListBreadcrumbTogglePluginImpl implements ListBreadcrumbTogglePlugi
       const strokes = button.querySelectorAll('svg stroke');
       
       if (this.state.isHidden) {
-        button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
-        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)'));
+        applyButtonStyle(button, 'active');
         button.title = '显示列表面包屑';
       } else {
-        button.style.backgroundColor = 'transparent';
-        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-text-secondary, #666)'));
-        if (strokes.length > 0) {
-          strokes.forEach(stroke => stroke.setAttribute('stroke', 'var(--orca-color-text-secondary, #666)'));
-        }
+        applyButtonStyle(button, 'inactive');
         button.title = '隐藏列表面包屑';
       }
     });

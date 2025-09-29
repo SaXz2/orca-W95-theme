@@ -12,6 +12,7 @@ import type {
 import { POPUP_TOOLBAR_TOGGLE_CONFIG } from '../../constants';
 import type { ToolbarButtonManager } from '../utils/buttonUtils';
 import { observerManager } from '../utils/observerManager';
+import { applyButtonStyle } from '../utils/buttonUtils';
 
 export class PopupToolbarTogglePluginImpl implements PopupToolbarTogglePlugin {
   private state: PopupToolbarToggleState = {
@@ -207,7 +208,7 @@ export class PopupToolbarTogglePluginImpl implements PopupToolbarTogglePlugin {
     button.style.padding = '0';
     button.style.border = 'none';
     button.style.borderRadius = '3px';
-    button.style.backgroundColor = 'transparent';
+    applyButtonStyle(button, 'inactive');
     button.style.cursor = 'pointer';
     button.style.display = 'flex';
     button.style.alignItems = 'center';
@@ -270,29 +271,35 @@ export class PopupToolbarTogglePluginImpl implements PopupToolbarTogglePlugin {
    * 更新按钮样式
    */
   private updateButtonStyle(): void {
-    const button = document.getElementById(this.config.buttonId);
-    if (!button) return;
+    // 更新所有同名按钮
+    const buttons = document.querySelectorAll(`#${this.config.buttonId}`);
+    buttons.forEach(button => {
+      if (!(button instanceof HTMLElement)) return;
 
-    // 更新图标
+      // 先更新图标，确保图标内容正确
+      this.updateButtonIconForButton(button);
+
+      if (this.state.isHidden) {
+        // 隐藏状态 - 使用激活颜色
+        applyButtonStyle(button, 'active');
+        button.title = '显示悬浮工具栏';
+      } else {
+        // 显示状态 - 使用正常颜色
+        applyButtonStyle(button, 'inactive');
+        button.title = '隐藏悬浮工具栏';
+      }
+    });
+  }
+
+  /**
+   * 为指定按钮更新图标
+   */
+  private updateButtonIconForButton(button: HTMLElement): void {
+    // 根据当前状态设置正确的图标
     const iconSvg = this.state.isHidden 
       ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>'
       : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
     
     button.innerHTML = iconSvg;
-    
-    // 更新标题
-    button.title = this.state.isHidden ? '显示悬浮工具栏' : '隐藏悬浮工具栏';
-    
-    // 更新颜色
-    const svgElements = button.querySelectorAll('svg');
-    if (this.state.isHidden) {
-      // 隐藏状态 - 使用较暗的颜色
-      button.style.backgroundColor = 'hsl(from var(--orca-color-text-1) h s l / .1)';
-      svgElements.forEach(svg => svg.setAttribute('color', 'hsl(from var(--orca-color-text-1) h s l / .6)'));
-    } else {
-      // 显示状态 - 使用正常颜色
-      button.style.backgroundColor = 'transparent';
-      svgElements.forEach(svg => svg.setAttribute('color', 'hsl(from var(--orca-color-text-1) h s l / 1)'));
-    }
   }
 }

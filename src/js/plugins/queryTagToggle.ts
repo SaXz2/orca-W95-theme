@@ -6,6 +6,7 @@
 import type { QueryTagToggleAPI, QueryTagTogglePlugin, QueryTagToggleState } from '../../types';
 import { QUERY_TAG_TOGGLE_CONFIG } from '../../constants';
 import type { ToolbarButtonManager } from '../utils/buttonUtils';
+import { applyButtonStyle } from '../utils/buttonUtils';
 
 export class QueryTagTogglePluginImpl implements QueryTagTogglePlugin {
   private state: QueryTagToggleState = {
@@ -192,7 +193,7 @@ export class QueryTagTogglePluginImpl implements QueryTagTogglePlugin {
     button.style.padding = '0';
     button.style.border = 'none';
     button.style.borderRadius = '3px';
-    button.style.backgroundColor = 'transparent';
+    applyButtonStyle(button, 'inactive');
     button.style.cursor = 'pointer';
     button.style.display = 'flex';
     button.style.alignItems = 'center';
@@ -246,12 +247,10 @@ export class QueryTagTogglePluginImpl implements QueryTagTogglePlugin {
 
       const paths = button.querySelectorAll('svg path');
       if (this.state.isHidden) {
-        button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
-        paths.forEach(path => path.setAttribute('stroke', 'var(--orca-color-primary, #165DFF)'));
+        applyButtonStyle(button, 'active');
         button.title = '显示标签：空';
       } else {
-        button.style.backgroundColor = 'transparent';
-        paths.forEach(path => path.setAttribute('stroke', 'var(--orca-color-text-secondary, #666)'));
+        applyButtonStyle(button, 'inactive');
         button.title = '隐藏标签：空';
       }
     });

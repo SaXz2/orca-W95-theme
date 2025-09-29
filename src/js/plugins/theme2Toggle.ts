@@ -12,6 +12,7 @@ import type {
 import { THEME2_TOGGLE_CONFIG } from '../../constants';
 import type { ToolbarButtonManager } from '../utils/buttonUtils';
 import { createPersistenceManager, type PersistenceManager } from '../utils/persistenceUtils';
+import { applyButtonStyle } from '../utils/buttonUtils';
 
 // 模块作用域变量（完全仿照参考文件）
 let currentPluginName = '';
@@ -642,7 +643,7 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
     button.style.padding = '0';
     button.style.border = 'none';
     button.style.borderRadius = '3px';
-    button.style.backgroundColor = 'transparent';
+    applyButtonStyle(button, 'inactive');
     button.style.cursor = 'pointer';
     button.style.display = 'flex';
     button.style.alignItems = 'center';
@@ -741,13 +742,11 @@ export class Theme2TogglePluginImpl implements Theme2TogglePlugin {
       const svgElements = button.querySelectorAll('svg circle, svg line, svg path');
       if (isActive) {
         // 主题2已加载 - 激活状态
-        button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
-        svgElements.forEach(el => el.setAttribute('stroke', 'var(--orca-color-primary, #165DFF)'));
+        applyButtonStyle(button, 'active');
         button.title = '切换到默认主题';
       } else {
         // 主题2未加载 - 非激活状态
-        button.style.backgroundColor = 'transparent';
-        svgElements.forEach(el => el.setAttribute('stroke', 'var(--orca-color-text-secondary, #666)'));
+        applyButtonStyle(button, 'inactive');
         button.title = '切换到主题2';
       }
     });

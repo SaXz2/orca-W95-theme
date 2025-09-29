@@ -11,6 +11,7 @@ import type {
   TimePeriod
 } from '../../types';
 import { QUERY_LIST_BLOCK_CREATION_TIME_CONFIG } from '../../constants';
+import { applyButtonStyle } from '../utils/buttonUtils';
 
 export class QueryListBlockCreationTimePluginImpl implements QueryListBlockCreationTimePlugin {
   private state: QueryListBlockCreationTimeState = {
@@ -477,17 +478,9 @@ export class QueryListBlockCreationTimePluginImpl implements QueryListBlockCreat
 
         // 更新按钮背景色和文字颜色
         if (this.state.isEnabled) {
-          button.style.backgroundColor = 'var(--orca-color-primary-1, rgba(24, 124, 201, 0.15))';
-          button.style.color = 'var(--orca-color-primary-5, #187cc9)';
-          icons.forEach(icon => {
-            icon.style.color = 'var(--orca-color-primary-5, #187cc9)';
-          });
+          applyButtonStyle(button, 'active');
         } else {
-          button.style.backgroundColor = 'transparent';
-          button.style.color = 'var(--orca-color-text-2, #666)';
-          icons.forEach(icon => {
-            icon.style.color = 'var(--orca-color-text-2, #666)';
-          });
+          applyButtonStyle(button, 'inactive');
         }
       }, 0);
     });

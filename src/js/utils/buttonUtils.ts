@@ -3,6 +3,69 @@
  * 提供通用的按钮创建和样式设置功能
  */
 
+/**
+ * 统一按钮颜色配置
+ */
+export interface ButtonColorConfig {
+  backgroundColor: string;
+  textColor: string;
+  iconColor: string;
+}
+
+/**
+ * 获取标准按钮颜色配置
+ */
+export function getButtonColors(type: 'active' | 'inactive' | 'warning' = 'inactive'): ButtonColorConfig {
+  switch (type) {
+    case 'active':
+      return {
+        backgroundColor: 'var(--orca-color-primary-1, rgba(24, 124, 201, 0.15))',
+        textColor: 'var(--orca-color-primary-5, #187cc9)',
+        iconColor: 'var(--orca-color-primary-5, #187cc9)'
+      };
+    case 'warning':
+      return {
+        backgroundColor: 'var(--orca-color-warning-1, rgba(214, 156, 20, 0.15))',
+        textColor: 'var(--orca-color-warning-5, rgb(214, 156, 20))',
+        iconColor: 'var(--orca-color-warning-5, rgb(214, 156, 20))'
+      };
+    case 'inactive':
+    default:
+      return {
+        backgroundColor: 'transparent',
+        textColor: 'var(--orca-color-text-2, #666)',
+        iconColor: 'var(--orca-color-text-2, #666)'
+      };
+  }
+}
+
+/**
+ * 应用统一按钮样式
+ */
+export function applyButtonStyle(
+  button: HTMLElement,
+  colorType: 'active' | 'inactive' | 'warning' = 'inactive'
+): void {
+  const colors = getButtonColors(colorType);
+  
+  // 设置按钮背景色和文字颜色
+  button.style.backgroundColor = colors.backgroundColor;
+  button.style.color = colors.textColor;
+  
+  // 设置图标颜色
+  const icons = button.querySelectorAll('i, svg, svg path, svg rect, svg circle, svg line');
+  icons.forEach(icon => {
+    if (icon instanceof HTMLElement) {
+      icon.style.color = colors.iconColor;
+    }
+    // 对于 SVG 元素，设置 fill 和 stroke 属性
+    if (icon instanceof SVGElement) {
+      icon.setAttribute('fill', colors.iconColor);
+      icon.setAttribute('stroke', colors.iconColor);
+    }
+  });
+}
+
 export interface ButtonConfig {
   id: string;
   title: string;

@@ -12,6 +12,7 @@ import type {
 } from '../../types';
 import { OCR_IMAGE_BLOCK_TOGGLE_CONFIG } from '../../constants';
 import { observerManager } from '../utils/observerManager';
+import { applyButtonStyle } from '../utils/buttonUtils';
 
 export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin {
   private state: OcrImageBlockToggleState = {
@@ -372,16 +373,13 @@ export class OcrImageBlockTogglePluginImpl implements OcrImageBlockTogglePlugin 
 
     switch(this.state.currentState) {
       case 1:
-        button.style.backgroundColor = 'var(--orca-color-warning-1, rgba(214, 156, 20, 0.15))';
-        button.style.color = 'var(--orca-color-warning-5, rgb(214, 156, 20))';
+        applyButtonStyle(button, 'warning');
         break;
       case 2:
-        button.style.backgroundColor = 'var(--orca-color-primary-1, rgba(24, 124, 201, 0.15))';
-        button.style.color = 'var(--orca-color-primary-5, #187cc9)';
+        applyButtonStyle(button, 'active');
         break;
       default:
-        button.style.backgroundColor = 'transparent';
-        button.style.color = 'var(--orca-color-text-2, #666)';
+        applyButtonStyle(button, 'inactive');
         break;
     }
   }

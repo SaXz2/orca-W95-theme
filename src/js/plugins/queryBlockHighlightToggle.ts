@@ -9,7 +9,7 @@ import type {
   QueryBlockHighlightToggleState 
 } from '../../types';
 import { QUERY_BLOCK_HIGHLIGHT_TOGGLE_CONFIG } from '../../constants';
-import { createToolbarButton, updateButtonStyle, type ButtonConfig, type ButtonStyleConfig, type ToolbarButtonManager } from '../utils/buttonUtils';
+import { createToolbarButton, updateButtonStyle, type ButtonConfig, type ButtonStyleConfig, type ToolbarButtonManager, applyButtonStyle } from '../utils/buttonUtils';
 import { createBlockObserver, disconnectObserver } from '../utils/observerUtils';
 
 export class QueryBlockHighlightTogglePluginImpl implements QueryBlockHighlightTogglePlugin {
@@ -321,17 +321,14 @@ export class QueryBlockHighlightTogglePluginImpl implements QueryBlockHighlightT
         const rects = button.querySelectorAll('svg rect');
         
         if (this.state.isHighlighted) {
-          button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
+          applyButtonStyle(button, 'active');
           rects.forEach(rect => {
-            rect.setAttribute('fill', 'var(--orca-color-primary, #165DFF)');
             rect.setAttribute('opacity', '0.8');
           });
           button.title = '取消仅块引用区块背景色';
         } else {
-          button.style.backgroundColor = 'transparent';
+          applyButtonStyle(button, 'inactive');
           rects.forEach(rect => {
-            rect.setAttribute('stroke', 'var(--orca-color-text-secondary, #666)');
-            rect.removeAttribute('fill');
             rect.removeAttribute('opacity');
           });
           button.title = '设置仅块引用区块背景色';

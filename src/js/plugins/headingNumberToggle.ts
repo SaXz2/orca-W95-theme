@@ -13,6 +13,7 @@ import {
 } from '../../constants';
 import type { ToolbarButtonManager } from '../utils/buttonUtils';
 import { createPersistenceManager, type PersistenceManager } from '../utils/persistenceUtils';
+import { applyButtonStyle } from '../utils/buttonUtils';
 
 /**
  * 标题编号切换插件类
@@ -218,7 +219,7 @@ export class HeadingNumberTogglePluginImpl implements HeadingNumberTogglePlugin 
     button.style.padding = '0';
     button.style.border = 'none';
     button.style.borderRadius = '3px';
-    button.style.backgroundColor = 'transparent';
+    applyButtonStyle(button, 'inactive');
     button.style.cursor = 'pointer';
     button.style.display = 'flex';
     button.style.alignItems = 'center';
@@ -290,11 +291,9 @@ export class HeadingNumberTogglePluginImpl implements HeadingNumberTogglePlugin 
 
       const paths = button.querySelectorAll('svg path');
       if (this.state.isEnabled) {
-        button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
-        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)'));
+        applyButtonStyle(button, 'active');
       } else {
-        button.style.backgroundColor = 'transparent';
-        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-text-secondary, #666)'));
+        applyButtonStyle(button, 'inactive');
       }
     });
   }

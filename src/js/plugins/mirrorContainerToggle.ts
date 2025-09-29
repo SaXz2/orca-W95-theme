@@ -12,6 +12,7 @@ import type {
 import { MIRROR_CONTAINER_TOGGLE_CONFIG } from '../../constants';
 import type { ToolbarButtonManager } from '../utils/buttonUtils';
 import { observerManager } from '../utils/observerManager';
+import { applyButtonStyle } from '../utils/buttonUtils';
 
 export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlugin {
   private state: MirrorContainerToggleState = {
@@ -190,7 +191,7 @@ export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlu
     button.style.padding = '0';
     button.style.border = 'none';
     button.style.borderRadius = '3px';
-    button.style.backgroundColor = 'transparent';
+    applyButtonStyle(button, 'inactive');
     button.style.cursor = 'pointer';
     button.style.display = 'flex';
     button.style.alignItems = 'center';
@@ -286,12 +287,10 @@ export class MirrorContainerTogglePluginImpl implements MirrorContainerTogglePlu
 
       const paths = button.querySelectorAll('svg path');
       if (this.state.isHidden) {
-        button.style.backgroundColor = 'var(--orca-color-primary-light, rgba(22, 93, 255, 0.15))';
-        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-primary, #165DFF)'));
+        applyButtonStyle(button, 'active');
         button.title = '显示镜像容器';
       } else {
-        button.style.backgroundColor = 'transparent';
-        paths.forEach(path => path.setAttribute('fill', 'var(--orca-color-text-secondary, #666)'));
+        applyButtonStyle(button, 'inactive');
         button.title = '隐藏镜像容器';
       }
     });

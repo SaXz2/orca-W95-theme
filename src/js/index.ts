@@ -16,8 +16,8 @@ export type {
   QueryViewToggleConfig 
 } from '../types';
 
-// 标题编号切换插件
-export { HeadingNumberTogglePluginImpl } from './plugins/headingNumberToggle';
+// 标题编号切换插件（已迁移到侧边栏工具）
+// export { HeadingNumberTogglePluginImpl } from './plugins/headingNumberToggle';
 export type { 
   HeadingNumberTogglePlugin, 
   HeadingNumberToggleAPI, 
@@ -34,8 +34,8 @@ export type {
   PropsToggleConfig 
 } from '../types';
 
-// 特定标签查询隐藏切换插件
-export { QueryTagTogglePluginImpl } from './plugins/queryTagToggle';
+// 特定标签查询隐藏切换插件（已迁移到侧边栏工具）
+// export { QueryTagTogglePluginImpl } from './plugins/queryTagToggle';
 export type { 
   QueryTagTogglePlugin, 
   QueryTagToggleAPI, 
@@ -43,8 +43,8 @@ export type {
   QueryTagToggleConfig 
 } from '../types';
 
-// 仅块引用隐藏切换插件
-export { QueryBlockRefTogglePluginImpl } from './plugins/queryBlockRefToggle';
+// 仅块引用隐藏切换插件（已迁移到侧边栏工具）
+// export { QueryBlockRefTogglePluginImpl } from './plugins/queryBlockRefToggle';
 export type { 
   QueryBlockRefTogglePlugin, 
   QueryBlockRefToggleAPI, 
@@ -52,8 +52,8 @@ export type {
   QueryBlockRefToggleConfig 
 } from '../types';
 
-// 仅块引用背景色高亮切换插件
-export { QueryBlockHighlightTogglePluginImpl } from './plugins/queryBlockHighlightToggle';
+// 仅块引用背景色高亮切换插件（已迁移到侧边栏工具）
+// export { QueryBlockHighlightTogglePluginImpl } from './plugins/queryBlockHighlightToggle';
 export type { 
   QueryBlockHighlightTogglePlugin, 
   QueryBlockHighlightToggleAPI, 
@@ -61,8 +61,8 @@ export type {
   QueryBlockHighlightToggleConfig 
 } from '../types';
 
-// 镜像容器切换插件
-export { MirrorContainerTogglePluginImpl } from './plugins/mirrorContainerToggle';
+// 镜像容器切换插件（已迁移到侧边栏工具）
+// export { MirrorContainerTogglePluginImpl } from './plugins/mirrorContainerToggle';
 export type { 
   MirrorContainerTogglePlugin, 
   MirrorContainerToggleAPI, 
@@ -70,8 +70,8 @@ export type {
   MirrorContainerToggleConfig 
 } from '../types';
 
-// 列表面包屑切换插件
-export { ListBreadcrumbTogglePluginImpl } from './plugins/listBreadcrumbToggle';
+// 列表面包屑切换插件（已迁移到侧边栏工具）
+// export { ListBreadcrumbTogglePluginImpl } from './plugins/listBreadcrumbToggle';
 export type { 
   ListBreadcrumbTogglePlugin, 
   ListBreadcrumbToggleAPI, 
@@ -79,8 +79,8 @@ export type {
   ListBreadcrumbToggleConfig 
 } from '../types';
 
-// 卡片视图极简切换插件
-export { CardViewMinimalTogglePluginImpl } from './plugins/cardViewMinimalToggle';
+// 卡片视图极简切换插件（已迁移到侧边栏工具）
+// export { CardViewMinimalTogglePluginImpl } from './plugins/cardViewMinimalToggle';
 export type { 
   CardViewMinimalTogglePlugin, 
   CardViewMinimalToggleAPI, 
@@ -88,8 +88,8 @@ export type {
   CardViewMinimalToggleConfig 
 } from '../types';
 
-// 卡片封面比例切换插件
-export { CardCoverAspectRatioTogglePluginImpl } from './plugins/cardCoverAspectRatioToggle';
+// 卡片封面比例切换插件（已迁移到侧边栏工具）
+// export { CardCoverAspectRatioTogglePluginImpl } from './plugins/cardCoverAspectRatioToggle';
 export type { 
   CardCoverAspectRatioPlugin, 
   CardCoverAspectRatioAPI, 
@@ -98,8 +98,8 @@ export type {
   AspectRatioState
 } from '../types';
 
-// 查询列表块创建时间显示插件
-export { QueryListBlockCreationTimePluginImpl } from './plugins/queryListBlockCreationTime';
+// 查询列表块创建时间显示插件（已迁移到侧边栏工具）
+// export { QueryListBlockCreationTimePluginImpl } from './plugins/queryListBlockCreationTime';
 export type { 
   QueryListBlockCreationTimePlugin, 
   QueryListBlockCreationTimeAPI, 
@@ -109,8 +109,8 @@ export type {
   ColorScheme
 } from '../types';
 
-// 主题2切换插件
-export { Theme2TogglePluginImpl } from './plugins/theme2Toggle';
+// 主题2切换插件（已迁移到侧边栏工具）
+// export { Theme2TogglePluginImpl } from './plugins/theme2Toggle';
 export type { 
   Theme2TogglePlugin, 
   Theme2ToggleAPI, 
@@ -127,8 +127,8 @@ export type {
   OcrImageBlockToggleConfig
 } from '../types';
 
-// 悬浮工具栏切换插件
-export { PopupToolbarTogglePluginImpl } from './plugins/popupToolbarToggle';
+// 悬浮工具栏切换插件（已迁移到侧边栏工具）
+// export { PopupToolbarTogglePluginImpl } from './plugins/popupToolbarToggle';
 export type { 
   PopupToolbarTogglePlugin, 
   PopupToolbarToggleAPI, 

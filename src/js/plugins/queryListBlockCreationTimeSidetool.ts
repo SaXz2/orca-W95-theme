@@ -1,9 +1,10 @@
 /**
- * 查询列表块创建时间显示模块
+ * 查询列表块创建时间显示模块 - Sidetool 版本
  * - 遵循最小可行方案：自动检测查询列表块，添加创建时间显示
  * - 支持亮色/暗色主题，根据时间段显示不同颜色和图标
  */
 
+import React from 'react';
 import type { 
   QueryListBlockCreationTimeAPI, 
   QueryListBlockCreationTimePlugin, 
@@ -11,9 +12,9 @@ import type {
   TimePeriod
 } from '../../types';
 import { QUERY_LIST_BLOCK_CREATION_TIME_CONFIG } from '../../constants';
-import { applyButtonStyle } from '../utils/buttonUtils';
+import { createPersistenceManager, type PersistenceManager } from '../utils/persistenceUtils';
 
-export class QueryListBlockCreationTimePluginImpl implements QueryListBlockCreationTimePlugin {
+export class QueryListBlockCreationTimeSidetoolImpl implements QueryListBlockCreationTimePlugin {
   private state: QueryListBlockCreationTimeState = {
     isEnabled: true,
     retryCount: 0,
@@ -22,17 +23,18 @@ export class QueryListBlockCreationTimePluginImpl implements QueryListBlockCreat
   };
 
   private config = QUERY_LIST_BLOCK_CREATION_TIME_CONFIG;
-  private buttonManager: any = null;
+  private persistenceManager: PersistenceManager | null = null;
+  private reactiveState: any; // Valtio proxy state
 
-  constructor(buttonManager?: any) {
-    this.buttonManager = buttonManager;
+  constructor(pluginName?: string) {
+    this.persistenceManager = pluginName ? createPersistenceManager(pluginName) : null;
+    this.reactiveState = window.Valtio.proxy({ isEnabled: true });
   }
 
-  public initialize(): void {
+  public async initialize(): Promise<void> {
     if (this.state.isInitialized) return;
 
-    this.initState();
-    this.createButton();
+    await this.initState();
     this.applyStyle();
     
     // 根据保存的状态应用功能
@@ -77,6 +79,33 @@ export class QueryListBlockCreationTimePluginImpl implements QueryListBlockCreat
       getTotalCount: () => document.querySelectorAll(this.config.targetSelector).length
     };
   }
+
+  public renderSidetool = (rootBlockId: any, panelId: string): React.ReactNode => {
+    const Tooltip = orca.components.Tooltip;
+    const Button = orca.components.Button;
+    const useSnapshot = window.Valtio.useSnapshot;
+
+    const QueryListBlockCreationTimeButton = () => {
+      const snap = useSnapshot(this.reactiveState);
+
+      const getIcon = () => 'ti ti-clock';
+      const getTooltipText = () => snap.isEnabled ? '隐藏创建时间' : '显示创建时间';
+
+      return React.createElement(Tooltip, {
+        text: getTooltipText(),
+        placement: "horizontal",
+        children: React.createElement(Button, {
+          className: `orca-block-editor-sidetools-btn ${snap.isEnabled ? "orca-opened" : ""}`,
+          variant: "plain",
+          onClick: async () => await this.toggleState()
+        }, React.createElement('i', {
+          className: getIcon()
+        }))
+      });
+    };
+
+    return React.createElement(QueryListBlockCreationTimeButton);
+  };
 
   /**
    * 获取当前颜色方案
@@ -335,163 +364,70 @@ export class QueryListBlockCreationTimePluginImpl implements QueryListBlockCreat
   /**
    * 初始化状态
    */
-  private initState(): void {
+  private async initState(): Promise<void> {
     try {
-      const stored = localStorage.getItem(this.config.storageKey);
-      this.state.isEnabled = stored ? JSON.parse(stored) : true;
+      if (this.persistenceManager) {
+        this.state.isEnabled = await this.persistenceManager.loadState('queryListBlockCreationTimeEnabled', true);
+      } else {
+        const stored = localStorage.getItem(this.config.storageKey);
+        this.state.isEnabled = stored ? JSON.parse(stored) : true;
+      }
+      this.reactiveState.isEnabled = this.state.isEnabled;
     } catch (e) {
-      console.error('状态初始化失败:', e);
+      console.error('[QueryListBlockCreationTimeSidetool] 状态加载失败:', e);
       this.state.isEnabled = true;
+      this.reactiveState.isEnabled = true;
     }
   }
 
   /**
-   * 创建按钮
-   */
-  private createButton(): void {
-    if (!this.buttonManager) return;
-
-    // 创建按钮元素
-    const button = document.createElement('button');
-    button.id = this.config.buttonId;
-    button.title = this.getButtonTitle();
-    button.style.width = '24px';
-    button.style.height = '24px';
-    button.style.margin = '5px 8px';
-    button.style.padding = '0';
-    button.style.border = 'none';
-    button.style.borderRadius = '3px';
-    button.style.backgroundColor = 'transparent';
-    button.style.cursor = 'pointer';
-    button.style.display = 'flex';
-    button.style.alignItems = 'center';
-    button.style.justifyContent = 'center';
-    button.style.transition = 'all 0.2s ease';
-    button.style.outline = 'none';
-    button.style.boxSizing = 'border-box';
-
-    // 设置按钮内容（只显示图标，不显示文字）
-    button.innerHTML = `<i class="${this.getButtonIcon()}" style="font-size: 14px;"></i>`;
-
-    // 添加点击事件
-    button.addEventListener('click', () => this.toggleState());
-
-    // 注册按钮
-    this.buttonManager.registerButton(
-      this.config.buttonId,
-      button,
-      10, // 优先级
-      'queryListBlockCreationTime', // 插件名称
-      () => {
-        // 按钮添加完成后更新样式
-        this.updateButtonStyle();
-      },
-      (newButton: HTMLButtonElement) => {
-        // 重新绑定点击事件
-        newButton.addEventListener('click', () => this.toggleState());
-        console.log('🔧 查询列表块创建时间插件：重新绑定点击事件');
-      }
-    );
-  }
-
-  /**
-   * 获取按钮图标
-   */
-  private getButtonIcon(): string {
-    return this.state.isEnabled ? 'ti ti-clock' : 'ti ti-clock-off';
-  }
-
-  /**
-   * 获取按钮标题
-   */
-  private getButtonTitle(): string {
-    return this.state.isEnabled ? '隐藏创建时间' : '显示创建时间';
-  }
-
-
-  /**
    * 切换状态
    */
-  private toggleState(): void {
-    this.state.isEnabled = !this.state.isEnabled;
-    this.saveState();
-    this.updateButtonStyle();
-    
+  private async toggleState(): Promise<void> {
     if (this.state.isEnabled) {
-      this.addCreationTimeToBlocks();
+      await this.disable();
     } else {
-      this.removeCreationTimeFromBlocks();
+      await this.enable();
     }
   }
 
   /**
    * 启用功能
    */
-  private enable(): void {
+  private async enable(): Promise<void> {
     if (this.state.isEnabled) return;
     this.state.isEnabled = true;
-    this.saveState();
-    this.updateButtonStyle();
+    this.reactiveState.isEnabled = true;
     this.addCreationTimeToBlocks();
+    await this.saveState();
+    console.log('✅ 查询列表块创建时间已启用');
   }
 
   /**
    * 禁用功能
    */
-  private disable(): void {
+  private async disable(): Promise<void> {
     if (!this.state.isEnabled) return;
     this.state.isEnabled = false;
-    this.saveState();
-    this.updateButtonStyle();
+    this.reactiveState.isEnabled = false;
     this.removeCreationTimeFromBlocks();
+    await this.saveState();
+    console.log('✅ 查询列表块创建时间已禁用');
   }
 
   /**
    * 保存状态
    */
-  private saveState(): void {
+  private async saveState(): Promise<void> {
     try {
-      localStorage.setItem(this.config.storageKey, JSON.stringify(this.state.isEnabled));
+      if (this.persistenceManager) {
+        await this.persistenceManager.saveState('queryListBlockCreationTimeEnabled', this.state.isEnabled);
+      } else {
+        localStorage.setItem(this.config.storageKey, JSON.stringify(this.state.isEnabled));
+      }
     } catch (e) {
-      console.error('状态保存失败:', e);
+      console.error('[QueryListBlockCreationTimeSidetool] 状态保存失败:', e);
     }
-  }
-
-  /**
-   * 更新按钮样式
-   */
-  private updateButtonStyle(): void {
-    // 更新所有同名按钮
-    const buttons = document.querySelectorAll(`#${this.config.buttonId}`);
-    buttons.forEach(button => {
-      if (!(button instanceof HTMLElement)) return;
-
-      // 先更新图标，确保图标内容正确
-      this.updateButtonIconForButton(button);
-
-      // 使用 setTimeout 确保 DOM 更新后再应用样式
-      setTimeout(() => {
-        const icons = button.querySelectorAll('i');
-        
-        // 更新按钮标题
-        button.title = this.getButtonTitle();
-
-        // 更新按钮背景色和文字颜色
-        if (this.state.isEnabled) {
-          applyButtonStyle(button, 'active');
-        } else {
-          applyButtonStyle(button, 'inactive');
-        }
-      }, 0);
-    });
-  }
-
-  /**
-   * 为指定按钮更新图标
-   */
-  private updateButtonIconForButton(button: HTMLElement): void {
-    // 更新按钮内容（只显示图标，不显示文字）
-    button.innerHTML = `<i class="${this.getButtonIcon()}" style="font-size: 14px;"></i>`;
   }
 
   /**

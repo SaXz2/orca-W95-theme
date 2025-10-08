@@ -129,3 +129,9 @@ i.orca-panel-drag-handle.ti.ti-dots-vertical {
 }
 
 /* 通用编辑器样式 */
+
+
+button.orca-button.plain.orca-block-editor-sidetools-btn {
+    margin: 2px;
+}
+/* 侧边工具栏按钮间距 */
